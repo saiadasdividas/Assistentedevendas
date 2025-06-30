@@ -38,6 +38,10 @@
             text-decoration: line-through;
             opacity: 0.6;
         }
+        .pipeline-list.drag-over {
+            background-color: #f5f5f4; /* bg-stone-200 */
+            border: 2px dashed #d6d3d1; /* border-stone-300 */
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
@@ -201,10 +205,11 @@
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
                 <div class="border-b border-stone-200 mb-6">
-                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                    <nav class="-mb-px flex flex-wrap space-x-6" aria-label="Tabs">
                         <button class="tab-button operational-tab active" data-target="sdr-task-tool">📋 Tarefas do SDR</button>
                         <button class="tab-button operational-tab" data-target="vendedor-pipeline-tool">🗂️ Pipeline do Vendedor</button>
-                         <button class="tab-button operational-tab" data-target="calculadora-tool">🧮 Calculadora de Vendas</button>
+                        <button class="tab-button operational-tab" data-target="calculadora-tool">🧮 Calculadora de Vendas</button>
+                        <button class="tab-button operational-tab" data-target="competitor-tool">📡 Registro de Concorrentes</button>
                     </nav>
                 </div>
 
@@ -220,25 +225,20 @@
                 <div id="vendedor-pipeline-tool" class="operational-content hidden">
                     <h3 class="text-xl font-bold text-amber-900 mb-4">Pipeline de Vendas (Kanban)</h3>
                      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px]">
-                            <h4 class="font-bold text-center mb-2">Qualificado</h4>
-                            <div class="pipeline-list space-y-2" data-stage="qualificado"></div>
+                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="qualificado">
+                            <h4 class="font-bold text-center mb-2 pointer-events-none">Qualificado</h4>
                         </div>
-                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px]">
-                            <h4 class="font-bold text-center mb-2">Proposta</h4>
-                            <div class="pipeline-list space-y-2" data-stage="proposta"></div>
+                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="proposta">
+                            <h4 class="font-bold text-center mb-2 pointer-events-none">Proposta</h4>
                         </div>
-                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px]">
-                             <h4 class="font-bold text-center mb-2">Negociação</h4>
-                             <div class="pipeline-list space-y-2" data-stage="negociacao"></div>
+                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="negociacao">
+                             <h4 class="font-bold text-center mb-2 pointer-events-none">Negociação</h4>
                         </div>
-                        <div class="bg-green-100 p-4 rounded-lg min-h-[200px]">
-                            <h4 class="font-bold text-green-800 text-center mb-2">Fechado</h4>
-                            <div class="pipeline-list space-y-2" data-stage="fechado"></div>
+                        <div class="bg-green-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="fechado">
+                            <h4 class="font-bold text-green-800 text-center mb-2 pointer-events-none">Fechado</h4>
                         </div>
-                        <div class="bg-red-100 p-4 rounded-lg min-h-[200px]">
-                            <h4 class="font-bold text-red-800 text-center mb-2">Perdido</h4>
-                            <div class="pipeline-list space-y-2" data-stage="perdido"></div>
+                        <div class="bg-red-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="perdido">
+                            <h4 class="font-bold text-red-800 text-center mb-2 pointer-events-none">Perdido</h4>
                         </div>
                     </div>
                     <div class="mt-4 flex gap-4">
@@ -266,6 +266,38 @@
                                 <p id="calc-final" class="text-3xl font-bold text-amber-900">R$ 0,00</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <div id="competitor-tool" class="operational-content hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-amber-900">Registro de Inteligência Competitiva</h3>
+                        <button id="clear-competitor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <input type="text" id="competitor-name" placeholder="Nome do Concorrente" class="p-2 border rounded-lg">
+                        <input type="text" id="competitor-strength" placeholder="Ponto Forte" class="p-2 border rounded-lg">
+                        <input type="text" id="competitor-weakness" placeholder="Ponto Fraco" class="p-2 border rounded-lg">
+                    </div>
+                    <textarea id="competitor-notes" placeholder="Outras observações, preços, estratégias..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
+                    <button id="add-competitor-btn" class="w-full bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar Concorrente</button>
+                    
+                    <hr class="my-6">
+                    <h4 class="text-lg font-bold mb-4">Concorrentes Mapeados</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white text-sm">
+                            <thead class="bg-stone-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">Concorrente</th>
+                                    <th class="py-2 px-4 text-left">Ponto Forte</th>
+                                    <th class="py-2 px-4 text-left">Ponto Fraco</th>
+                                    <th class="py-2 px-4 text-left">Observações</th>
+                                    <th class="py-2 px-4 text-left admin-only">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="competitor-table-body">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -369,74 +401,6 @@
             </div>
         </section>
 
-        <section id="playbook" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Playbook de Prospecção</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Ferramentas e guias práticos para encontrar, qualificar e abordar nossos futuros clientes.</p>
-            </div>
-            
-            <div class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                        <h3 class="text-xl font-bold text-amber-900 mb-3">1. Cliente Ideal (ICP)</h3>
-                        <p class="text-stone-600 mb-4">O foco da nossa prospecção deve ser em clientes com este perfil:</p>
-                        <ul class="list-inside space-y-2">
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Tipo de loja:</strong> Doces, presentes, festas, embalagens, confeitarias e fast-food.</span></li>
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Localização:</strong> Regiões onde o frete é viável e competitivo.</span></li>
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Volume:</strong> Compra para revenda ou possui boa demanda de consumo próprio.</span></li>
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Decisor:</strong> Falar com o(a) dono(a), comprador(a) ou gestor(a).</span></li>
-                        </ul>
-                    </div>
-                     <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                        <h3 class="text-xl font-bold text-amber-900 mb-3">2. Qualificação com BANT</h3>
-                        <p class="text-stone-600 mb-4">Faça as perguntas certas para qualificar um lead:</p>
-                        <ul class="list-inside space-y-2">
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Budget (Orçamento):</strong> O cliente tem capacidade financeira para comprar?</span></li>
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Authority (Autoridade):</strong> Estamos falando com a pessoa que decide a compra?</span></li>
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Need (Necessidade):</strong> Ele realmente precisa das nossas embalagens?</span></li>
-                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Timing (Momento):</strong> É a hora certa para ele comprar?</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">3. Dominando Objeções</h3>
-                    <div id="objections-accordion" class="space-y-2">
-                        <div class="accordion-item">
-                             <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                "Já tenho fornecedor."
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                             <div class="accordion-content hidden p-3">
-                                <p class="text-stone-700"><strong class="text-amber-900">Estratégia:</strong> Empatize, apresente diferenciais e foque em um pedido de teste para comparação.</p>
-                                <p class="text-stone-600 mt-2"><strong>Script:</strong> "Claro, isso é ótimo! Inclusive, muitos dos nossos clientes começaram com um pedido teste pra comparar qualidade, acabamento e condições. A gente se destaca muito nas datas comemorativas com embalagens criativas e de excelente custo-benefício. Você toparia dar uma olhadinha no catálogo só pra ter como referência?"</p>
-                            </div>
-                        </div>
-                         <div class="accordion-item">
-                             <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                "Achei caro."
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                             <div class="accordion-content hidden p-3">
-                                <p class="text-stone-700"><strong class="text-amber-900">Estratégia:</strong> Mude o foco de preço para valor agregado. Investigue a referência de preço do cliente.</p>
-                                <p class="text-stone-600 mt-2"><strong>Script:</strong> "Entendo totalmente. A nossa proposta é oferecer um produto com ótimo acabamento, que valoriza o doce ou presente - o que muitas vezes permite até vender por um preço maior. Mas me diz uma coisa: o que você costuma pagar em média por caixas de [tipo de produto]? Posso ver algo que caiba melhor no seu perfil."</p>
-                            </div>
-                        </div>
-                         <div class="accordion-item">
-                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                "Agora não posso comprar."
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                            <div class="accordion-content hidden p-3">
-                                <p class="text-stone-700"><strong class="text-amber-900">Estratégia:</strong> Entenda o momento, mas mantenha a porta aberta e crie um senso de urgência sutil.</p>
-                                <p class="text-stone-600 mt-2"><strong>Script:</strong> "Sem problema, entendo o momento. Mas posso te mandar o catálogo e te avisar quando surgir uma promoção ou condição especial? Muitos lojistas estão se antecipando para garantir os melhores preços com pagamento só daqui a [X dias]."</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
         <section id="recursos" class="mb-20 scroll-mt-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold tracking-tight">Biblioteca de Recursos</h2>
@@ -447,7 +411,7 @@
                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <a href="https://www.youtube.com/watch?v=TNcRr1vU_yc" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
                          <p class="font-semibold">O Melhor Treinamento de Vendas do Brasil</p>
-                         <p class="text-sm text-stone-500">ANDRÉ ORTIZ ENSINA COMO TER SUCESSO EM VENDAS !</p>
+                         <p class="text-sm text-stone-500">ANDRÉ ORTIZ ENSINA COMO TER SUCESSO EM VENDAS !</p>
                      </a>
                      <a href="https://www.youtube.com/watch?v=18XdUKtjdpQ" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
                          <p class="font-semibold">Curso de Vendas Completo - 20 Módulos</p>
@@ -465,11 +429,11 @@
                          <p class="font-semibold">Aula 3 - Perguntas de Problema</p>
                          <p class="text-sm text-stone-500">Guilerme Miranda</p>
                      </a>
-                     <a href="https://www.youtube.com/watch?v=I0OU1AAul7M" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                    <a href="https://www.youtube.com/watch?v=I0OU1AAul7M" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
                          <p class="font-semibold">Aula 4 - Perguntas de Implicação</p>
                          <p class="text-sm text-stone-500">Guilerme Miranda</p>
                      </a>
-                     <a href="https://www.youtube.com/watch?v=kTkK3FJdJM4" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                    <a href="https://www.youtube.com/watch?v=kTkK3FJdJM4" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
                          <p class="font-semibold">Aula 5 - Perguntas de Necessidade de Solução</p>
                          <p class="text-sm text-stone-500">Guilerme Miranda</p>
                      </a>
@@ -609,6 +573,7 @@
                 document.getElementById('admin-login-area').innerHTML = '<p class="text-green-400 text-xs">Modo Administrador Ativado.</p>';
                 renderSdrLog();
                 renderVendedorLog();
+                renderCompetitors();
             };
             
             adminLoginBtn.addEventListener('click', () => {
@@ -803,7 +768,9 @@
             let deals = JSON.parse(localStorage.getItem('salesPipelineDeals')) || [];
 
             const renderDeals = () => {
-                document.querySelectorAll('.pipeline-list').forEach(list => list.innerHTML = '');
+                document.querySelectorAll('.pipeline-list').forEach(list => {
+                    list.innerHTML = `<h4 class="font-bold text-center mb-2 pointer-events-none">${list.querySelector('h4').textContent}</h4>`;
+                });
                 deals.forEach((deal, index) => {
                     const dealEl = document.createElement('div');
                     dealEl.className = 'p-2 bg-white rounded shadow text-sm cursor-grab';
@@ -817,7 +784,7 @@
             };
 
             const addDragAndDropHandlers = () => {
-                const dealElements = document.querySelectorAll('.pipeline-list > div');
+                const dealElements = document.querySelectorAll('.pipeline-list > div[draggable="true"]');
                 const pipelineLists = document.querySelectorAll('.pipeline-list');
 
                 dealElements.forEach(dealEl => {
@@ -836,14 +803,21 @@
                 pipelineLists.forEach(list => {
                     list.addEventListener('dragover', (e) => {
                         e.preventDefault();
+                        list.classList.add('drag-over');
+                    });
+                    
+                    list.addEventListener('dragleave', () => {
+                        list.classList.remove('drag-over');
                     });
 
                     list.addEventListener('drop', (e) => {
                         e.preventDefault();
+                        list.classList.remove('drag-over');
                         const dealIndex = e.dataTransfer.getData('text/plain');
-                        const newStage = e.target.closest('.pipeline-list').dataset.stage;
+                        const targetList = e.currentTarget;
                         
-                        if (dealIndex && newStage) {
+                        if (dealIndex && targetList.classList.contains('pipeline-list')) {
+                           const newStage = targetList.dataset.stage;
                            deals[dealIndex].stage = newStage;
                            localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
                            renderDeals();
@@ -983,6 +957,69 @@
                     alert('Metas excluídas.');
                 }
             });
+
+             // Competitor Logic
+            let competitors = JSON.parse(localStorage.getItem('competitorLog')) || [];
+            const competitorTableBody = document.getElementById('competitor-table-body');
+
+            const renderCompetitors = () => {
+                competitorTableBody.innerHTML = '';
+                competitors.forEach((comp, index) => {
+                    const row = competitorTableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-2 px-4">${comp.name}</td>
+                        <td class="py-2 px-4">${comp.strength}</td>
+                        <td class="py-2 px-4">${comp.weakness}</td>
+                        <td class="py-2 px-4">${comp.notes}</td>
+                        <td class="py-2 px-4 admin-only">
+                            <button data-index="${index}" class="delete-competitor-btn text-red-500 hover:text-red-700">Excluir</button>
+                        </td>
+                    `;
+                });
+                if (isAdmin) {
+                    document.querySelectorAll('.delete-competitor-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                }
+            };
+
+            document.getElementById('add-competitor-btn').addEventListener('click', () => {
+                const name = document.getElementById('competitor-name').value;
+                const strength = document.getElementById('competitor-strength').value;
+                const weakness = document.getElementById('competitor-weakness').value;
+                const notes = document.getElementById('competitor-notes').value;
+
+                if (!name) {
+                    alert('O nome do concorrente é obrigatório.');
+                    return;
+                }
+                competitors.unshift({ name, strength, weakness, notes });
+                localStorage.setItem('competitorLog', JSON.stringify(competitors));
+                renderCompetitors();
+                document.getElementById('competitor-name').value = '';
+                document.getElementById('competitor-strength').value = '';
+                document.getElementById('competitor-weakness').value = '';
+                document.getElementById('competitor-notes').value = '';
+            });
+
+            competitorTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-competitor-btn')) {
+                    const index = e.target.dataset.index;
+                    if (confirm('Tem certeza que deseja excluir este registro de concorrente?')) {
+                        competitors.splice(index, 1);
+                        localStorage.setItem('competitorLog', JSON.stringify(competitors));
+                        renderCompetitors();
+                    }
+                }
+            });
+            
+            document.getElementById('clear-competitor-log-btn').addEventListener('click', () => {
+                if(confirm('ATENÇÃO: Isso apagará TODO o histórico de concorrentes. Deseja continuar?')) {
+                    competitors = [];
+                    localStorage.removeItem('competitorLog');
+                    renderCompetitors();
+                }
+            });
+
             
             // Initial render
             renderSdrLog();
@@ -991,6 +1028,7 @@
             renderDeals();
             renderCampaign();
             renderGoals();
+            renderCompetitors();
         });
     </script>
 </body>
