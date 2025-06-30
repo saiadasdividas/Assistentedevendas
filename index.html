@@ -85,7 +85,11 @@
                              <input type="text" id="campaign-duration" placeholder="Duração (ex: 01/07 a 07/07)" class="p-2 border rounded-lg">
                         </div>
                         <textarea id="campaign-strategy" placeholder="Descreva a estratégia, regras e foco da campanha..." rows="3" class="w-full mt-4 p-2 border rounded-lg"></textarea>
-                        <button id="save-campaign-btn" class="mt-2 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Campanha</button>
+                        <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                            <button id="save-campaign-btn" class="flex-1 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Campanha</button>
+                            <button id="edit-campaign-btn" class="flex-1 bg-stone-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-stone-600">Editar Atual</button>
+                            <button id="delete-campaign-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600">Excluir</button>
+                        </div>
                     </div>
                 </div>
                  <div>
@@ -912,7 +916,33 @@
                 };
                 localStorage.setItem('salesCampaign', JSON.stringify(campaignData));
                 renderCampaign();
+                document.getElementById('campaign-title').value = '';
+                document.getElementById('campaign-duration').value = '';
+                document.getElementById('campaign-strategy').value = '';
                 alert('Campanha salva com sucesso!');
+            });
+            
+            document.getElementById('edit-campaign-btn').addEventListener('click', () => {
+                document.getElementById('campaign-title').value = campaignData.title;
+                document.getElementById('campaign-duration').value = campaignData.duration;
+                document.getElementById('campaign-strategy').value = campaignData.strategy;
+                alert('Dados da campanha atual carregados para edição.');
+            });
+
+            document.getElementById('delete-campaign-btn').addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja excluir a campanha atual?')) {
+                    campaignData = { 
+                        title: 'Nenhuma campanha ativa no momento.', 
+                        duration: '', 
+                        strategy: 'O gestor definirá a próxima campanha em breve.' 
+                    };
+                    localStorage.setItem('salesCampaign', JSON.stringify(campaignData));
+                    renderCampaign();
+                    document.getElementById('campaign-title').value = '';
+                    document.getElementById('campaign-duration').value = '';
+                    document.getElementById('campaign-strategy').value = '';
+                    alert('Campanha excluída.');
+                }
             });
 
             document.getElementById('save-goals-btn').addEventListener('click', () => {
