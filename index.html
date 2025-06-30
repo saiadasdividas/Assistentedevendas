@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: Earthy Craft -->
+    <!-- Application Structure Plan: A single-page application designed as an interactive playbook for the Embalagens Conceito sales team. The structure is thematic and task-oriented, rather than linear, to allow for quick access to relevant information. It starts with company context ("Nossa Missão"), then clearly defines roles ("SDR vs. Vendedor") using a comparative layout. The core is an interactive sales funnel chart ("O Funil de Vendas") to visualize goals. It then provides practical tools in dedicated sections: a "Playbook de Prospecção" with ICP, BANT, and copyable scripts, and a "Dominando Objeções" section with interactive accordions. The final section, "Processos e Cultura," consolidates procedures like the handoff and meeting cadences. This structure was chosen to be a practical, easy-to-navigate tool that supports daily sales activities, transforming a static PDF into a dynamic resource. -->
+    <!-- Visualization & Content Choices: 
+        - Sales Funnel Metrics -> Goal: Visualize weekly targets & conversion. -> Viz: Funnel Chart. -> Interaction: Hover for details. -> Justification: More intuitive than a list of numbers for understanding conversion flow. -> Library: Chart.js (Bar Chart styled as Funnel).
+        - SDR vs Vendedor Roles -> Goal: Compare roles and detail tasks without clutter. -> Viz: Two-column layout with expandable accordions. -> Interaction: Click to expand/collapse. -> Justification: Allows high-level comparison with drill-down capability, preventing information overload. -> Method: HTML/CSS + JS.
+        - Objection Handling Scripts -> Goal: Quick access to responses. -> Viz: Interactive accordion. -> Interaction: Click to reveal script. -> Justification: Mimics a real-world scenario needing a quick answer. -> Method: HTML/CSS + JS.
+        - Handoff Process -> Goal: Illustrate lead transfer steps. -> Viz: Step-by-step visual diagram. -> Interaction: None. -> Justification: Visual flow is easier to remember than text. -> Method: HTML/CSS with flexbox and Unicode icons.
+        - Scripts (WhatsApp/Call) -> Goal: Make scripts easy to use. -> Viz: Blocks within tabs. -> Interaction: Copy to clipboard button. -> Justification: Highly practical for pasting into other apps. -> Method: HTML/CSS + JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>Painel de Vendas - Embalagens Conceito</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .tab-button.active {
+            border-color: #78350f;
+            color: #78350f;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                     <span class="text-xl font-bold text-amber-900">Embalagens Conceito</span>
+                </div>
+                <nav class="hidden md:flex md:space-x-8">
+                    <a href="#missao" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Nossa Missão</a>
+                    <a href="#funcoes" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">As Funções</a>
+                    <a href="#funil" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funil de Vendas</a>
+                    <a href="#playbook" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Playbook</a>
+                    <a href="#cultura" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Processos e Cultura</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <section id="missao" class="text-center mb-20 scroll-mt-20">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-tight">Guia Interativo de Vendas</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Um manual prático e didático para alinhar nossas estratégias e capacitar nossa equipe de vendas para o sucesso.</p>
+            <div class="mt-8 bg-white p-8 rounded-2xl shadow-md border border-stone-200 max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold text-stone-800 mb-4">Sobre a Embalagens Conceito</h2>
+                <p class="text-stone-600 text-left">Fundada em setembro de 2016 em Toledo-PR, nossa missão é atender os segmentos de confeitaria, fast-food e datas sazonais com produtos de alta qualidade e padrão técnico. Nosso objetivo é agregar valor aos produtos de nossos clientes, proporcionando confiança e credibilidade e estreitando parcerias com o setor atacadista de todo o Brasil. Atendemos com uma ampla variedade de caixas, forminhas, sacolas, tags e embalagens especiais para Páscoa e Natal.</p>
+            </div>
+        </section>
+
+        <section id="funcoes" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">As Funções: SDR vs. Vendedor</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Cada papel é fundamental para o nosso sucesso. Entender claramente as responsabilidades de cada um é o primeiro passo para uma colaboração eficiente.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                    <h3 class="text-2xl font-bold text-amber-900">SDR (Sales Development Rep)</h3>
+                    <p class="mt-2 text-stone-600 font-medium">O pré-vendedor focado em prospecção e qualificação de leads.</p>
+                    <div id="sdr-tasks" class="mt-4 space-y-2">
+                        <div class="accordion-item">
+                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                Principais Responsabilidades
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                            <div class="accordion-content hidden p-3">
+                                <ul class="list-disc list-inside text-stone-600 space-y-1">
+                                    <li>Prospecção Ativa: Identificar e contatar prospects.</li>
+                                    <li>Primeiro Contato: Despertar interesse e criar relacionamento.</li>
+                                    <li>Gestão de CRM: Manter dados e interações atualizadas.</li>
+                                    <li>Follow-up: Nutrir leads até estarem prontos.</li>
+                                    <li>Qualificar clientes para o vendedor.</li>
+                                </ul>
+                            </div>
+                        </div>
+                         <div class="accordion-item">
+                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                Plano Diário de Atividades (Metas)
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                            <div class="accordion-content hidden p-3">
+                                <ul class="list-disc list-inside text-stone-600 space-y-1">
+                                    <li>Preparar lista de leads (30+).</li>
+                                    <li>Pesquisar novos contatos (10).</li>
+                                    <li>Ligações rápidas de qualificação (10).</li>
+                                    <li>Follow-up com interessados (10).</li>
+                                    <li>Prospecção via WhatsApp (20).</li>
+                                    <li>Envio de catálogos/promoções (15).</li>
+                                    <li>Agendar reuniões para o vendedor (2-3).</li>
+                                    <li>Registrar tudo no CRM.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                    <h3 class="text-2xl font-bold text-amber-900">Vendedor (Fechador)</h3>
+                    <p class="mt-2 text-stone-600 font-medium">Pega os clientes qualificados pelo SDR e fecha a venda.</p>
+                     <div id="vendedor-tasks" class="mt-4 space-y-2">
+                        <div class="accordion-item">
+                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                Principais Responsabilidades
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                            <div class="accordion-content hidden p-3">
+                                <ul class="list-disc list-inside text-stone-600 space-y-1">
+                                    <li>Apresentar produtos detalhadamente.</li>
+                                    <li>Elaborar propostas personalizadas.</li>
+                                    <li>Negociar preços e condições comerciais.</li>
+                                    <li>Fechar a venda e emitir o pedido.</li>
+                                    <li>Cuidar do pós-venda para garantir satisfação.</li>
+                                </ul>
+                            </div>
+                        </div>
+                         <div class="accordion-item">
+                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                Plano Diário de Atividades (Metas)
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                            <div class="accordion-content hidden p-3">
+                                <ul class="list-disc list-inside text-stone-600 space-y-1">
+                                    <li>Analisar leads qualificados (2-3).</li>
+                                    <li>Reuniões/apresentações de produto (2-3).</li>
+                                    <li>Elaborar propostas personalizadas (2).</li>
+                                    <li>Follow-up de propostas (3-4).</li>
+                                    <li>Reuniões de fechamento (Meta: 2/dia).</li>
+                                    <li>Pós-venda e reativação (5).</li>
+                                    <li>Alinhamento rápido com SDR (15 min).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="funil" class="mb-20 scroll-mt-20">
+             <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">O Funil de Vendas Interativo</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Esta é a visualização das nossas metas semanais. Passe o mouse sobre cada etapa para ver os detalhes e entender as taxas de conversão esperadas.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                <div class="chart-container">
+                    <canvas id="salesFunnelChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="playbook" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">Playbook de Prospecção</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Ferramentas e guias práticos para encontrar, qualificar e abordar nossos futuros clientes.</p>
+            </div>
+            
+            <div class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                        <h3 class="text-xl font-bold text-amber-900 mb-3">1. Cliente Ideal (ICP)</h3>
+                        <p class="text-stone-600 mb-4">O foco da nossa prospecção deve ser em clientes com este perfil:</p>
+                        <ul class="list-inside space-y-2">
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Tipo de loja:</strong> Doces, presentes, festas, embalagens, confeitarias e fast-food.</span></li>
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Localização:</strong> Regiões onde o frete é viável e competitivo.</span></li>
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Volume:</strong> Compra para revenda ou possui boa demanda de consumo próprio.</span></li>
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Decisor:</strong> Falar com o(a) dono(a), comprador(a) ou gestor(a).</span></li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                        <h3 class="text-xl font-bold text-amber-900 mb-3">2. Qualificação com BANT</h3>
+                        <p class="text-stone-600 mb-4">Faça as perguntas certas para qualificar um lead:</p>
+                        <ul class="list-inside space-y-2">
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Budget (Orçamento):</strong> O cliente tem capacidade financeira para comprar?</span></li>
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Authority (Autoridade):</strong> Estamos falando com a pessoa que decide a compra?</span></li>
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Need (Necessidade):</strong> Ele realmente precisa das nossas embalagens?</span></li>
+                           <li class="flex items-start"><span class="text-amber-800 mr-2">●</span><span><strong class="text-stone-700">Timing (Momento):</strong> É a hora certa para ele comprar?</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">3. Scripts Essenciais</h3>
+                    <div id="scripts-container">
+                        <div class="border-b border-stone-200 mb-4">
+                            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                                <button class="tab-button active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" data-target="whatsapp-script">
+                                    Abordagem (WhatsApp)
+                                </button>
+                                <button class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300" data-target="call-script">
+                                    Qualificação (Ligação)
+                                </button>
+                            </nav>
+                        </div>
+                        <div id="whatsapp-script" class="tab-content">
+                            <p class="text-stone-600 mb-2">Ideal para o primeiro contato: personalizado, direto e com uma proposta de valor clara.</p>
+                            <div class="bg-stone-100 p-4 rounded-lg">
+                                <p id="script-text-1" class="text-stone-700">"Olá, tudo bem? Me chamo [Seu Nome], sou da Embalagens Conceito! Vi que você tem uma loja de [Segmento do Cliente] e queria te mostrar nossa linha de embalagens exclusivas para datas como [Data Sazonal, ex: Dia dos Pais]. Posso te mandar nosso catálogo com fotos e nossos lançamentos?"</p>
+                            </div>
+                            <button onclick="copyToClipboard('script-text-1', this)" class="mt-3 bg-amber-800 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Copiar Script</button>
+                        </div>
+                        <div id="call-script" class="tab-content hidden">
+                             <p class="text-stone-600 mb-2">Use este roteiro para uma qualificação rápida por telefone.</p>
+                            <div class="bg-stone-100 p-4 rounded-lg">
+                                <p id="script-text-2" class="text-stone-700">"Olá, [Nome do Prospect]! Tudo bem? Aqui é [Seu Nome], da Embalagens Conceito. Nós somos uma fábrica especializada em embalagens para confeitaria, presentes e datas comemorativas. Estou entrando em contato rapidinho para entender se faz sentido apresentarmos nossas soluções para sua loja. Você pode me atender por 2 minutinhos?"</p>
+                            </div>
+                            <button onclick="copyToClipboard('script-text-2', this)" class="mt-3 bg-amber-800 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Copiar Script</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">4. Dominando Objeções</h3>
+                    <p class="text-stone-600 mb-4">Objeções não são um "não", são um pedido por mais informações. Use este guia para transformar dúvidas em oportunidades.</p>
+                    <div id="objections-accordion" class="space-y-2">
+                        <div class="accordion-item">
+                             <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                "Já tenho fornecedor."
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                             <div class="accordion-content hidden p-3">
+                                <p class="text-stone-700"><strong class="text-amber-900">Estratégia:</strong> Empatize, apresente diferenciais e foque em um pedido de teste para comparação.</p>
+                                <p class="text-stone-600 mt-2"><strong>Script:</strong> "Claro, isso é ótimo! Inclusive, muitos dos nossos clientes começaram com um pedido teste pra comparar qualidade, acabamento e condições. A gente se destaca muito nas datas comemorativas com embalagens criativas e de excelente custo-benefício. Você toparia dar uma olhadinha no catálogo só pra ter como referência?"</p>
+                            </div>
+                        </div>
+                         <div class="accordion-item">
+                             <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                "Achei caro."
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                             <div class="accordion-content hidden p-3">
+                                <p class="text-stone-700"><strong class="text-amber-900">Estratégia:</strong> Mude o foco de preço para valor agregado. Investigue a referência de preço do cliente.</p>
+                                <p class="text-stone-600 mt-2"><strong>Script:</strong> "Entendo totalmente. A nossa proposta é oferecer um produto com ótimo acabamento, que valoriza o doce ou presente - o que muitas vezes permite até vender por um preço maior. Mas me diz uma coisa: o que você costuma pagar em média por caixas de [tipo de produto]? Posso ver algo que caiba melhor no seu perfil."</p>
+                            </div>
+                        </div>
+                         <div class="accordion-item">
+                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
+                                "Agora não posso comprar."
+                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
+                            </button>
+                            <div class="accordion-content hidden p-3">
+                                <p class="text-stone-700"><strong class="text-amber-900">Estratégia:</strong> Entenda o momento, mas mantenha a porta aberta e crie um senso de urgência sutil.</p>
+                                <p class="text-stone-600 mt-2"><strong>Script:</strong> "Sem problema, entendo o momento. Mas posso te mandar o catálogo e te avisar quando surgir uma promoção ou condição especial? Muitos lojistas estão se antecipando para garantir os melhores preços com pagamento só daqui a [X dias]."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="cultura" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">Processos e Cultura de Resultados</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Nossos rituais, processos e princípios que garantem o alinhamento e a alta performance da equipe.</p>
+            </div>
+            
+            <div class="space-y-8">
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                     <h3 class="text-xl font-bold text-amber-900 mb-4">O Handoff Perfeito: SDR para Vendedor</h3>
+                     <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+                        <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                           <div class="text-3xl mb-2">1</div> <p class="font-semibold">SDR Qualifica</p><p class="text-sm text-stone-500">Usa o BANT e preenche as informações do lead no CRM.</p>
+                        </div>
+                        <div class="text-amber-900 font-bold text-2xl mx-4">→</div>
+                        <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                           <div class="text-3xl mb-2">2</div> <p class="font-semibold">Comunicação Rápida</p><p class="text-sm text-stone-500">Lead é passado via planilha compartilhada ou WhatsApp.</p>
+                        </div>
+                        <div class="text-amber-900 font-bold text-2xl mx-4 hidden md:block">→</div>
+                        <div class="flex md:hidden text-amber-900 font-bold text-2xl my-2">↓</div>
+                         <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                           <div class="text-3xl mb-2">3</div> <p class="font-semibold">Alinhamento (15 min)</p><p class="text-sm text-stone-500">Reunião rápida para discutir os detalhes do lead.</p>
+                        </div>
+                        <div class="text-amber-900 font-bold text-2xl mx-4">→</div>
+                         <div class="flex-1 p-4 bg-stone-50 rounded-lg">
+                           <div class="text-3xl mb-2">4</div> <p class="font-semibold">Introdução Formal</p><p class="text-sm text-stone-500">SDR apresenta o Vendedor ao cliente, garantindo uma transição suave.</p>
+                        </div>
+                     </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                        <h4 class="font-bold text-lg">Reuniões Diárias (15 min)</h4>
+                        <ul class="mt-3 list-disc list-inside text-stone-600 space-y-1">
+                           <li>O que cada um vai fazer hoje?</li>
+                           <li>Tem algum problema?</li>
+                           <li>Compartilhar vitórias.</li>
+                           <li>Alinhar prioridades.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                        <h4 class="font-bold text-lg">Reuniões Semanais (1 hora)</h4>
+                        <ul class="mt-3 list-disc list-inside text-stone-600 space-y-1">
+                           <li>Análise de metas.</li>
+                           <li>O que funcionou bem?</li>
+                           <li>O que precisa melhorar?</li>
+                           <li>Treinar algo novo.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                        <h4 class="font-bold text-lg">Reuniões Mensais (2 horas)</h4>
+                        <ul class="mt-3 list-disc list-inside text-stone-600 space-y-1">
+                           <li>Análise completa dos números.</li>
+                           <li>Feedback do mercado.</li>
+                           <li>Ajustar estratégias.</li>
+                           <li>Definir metas do próximo mês.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                 <div class="text-center p-8 bg-amber-800 text-white rounded-2xl">
+                    <h3 class="text-2xl font-bold">Nossos Princípios Essenciais</h3>
+                    <p class="mt-4 max-w-3xl mx-auto opacity-90">"Venda é número: quanto mais organizado, mais vende!"</p>
+                    <div class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-sm font-semibold">
+                       <div class="bg-white/20 p-3 rounded-lg">Clareza de Papéis</div>
+                       <div class="bg-white/20 p-3 rounded-lg">Seguir Processos</div>
+                       <div class="bg-white/20 p-3 rounded-lg">Usar as Ferramentas</div>
+                       <div class="bg-white/20 p-3 rounded-lg">Feedback e Ajuste</div>
+                       <div class="bg-white/20 p-3 rounded-lg col-span-2 sm:col-span-1 md:col-span-1">Foco nos Números</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        
+    </main>
+
+    <footer class="bg-stone-800 text-white">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>&copy; 2024 Embalagens Conceito. Todos os direitos reservados.</p>
+            <p class="opacity-70">Painel de Vendas Interativo</p>
+        </div>
+    </footer>
+    
+    <div id="copy-feedback" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300">
+        Script copiado!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const accordionContainers = ['sdr-tasks', 'vendedor-tasks', 'objections-accordion'];
+
+            accordionContainers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if(container) {
+                    const headers = container.querySelectorAll('.accordion-header');
+                    headers.forEach(header => {
+                        header.addEventListener('click', () => {
+                            const content = header.nextElementSibling;
+                            const icon = header.querySelector('.accordion-icon');
+                            
+                            content.classList.toggle('hidden');
+                            icon.classList.toggle('rotate-180');
+                        });
+                    });
+                }
+            });
+
+            const tabsContainer = document.getElementById('scripts-container');
+            if (tabsContainer) {
+                const tabButtons = tabsContainer.querySelectorAll('.tab-button');
+                const tabContents = tabsContainer.querySelectorAll('.tab-content');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetId = button.dataset.target;
+                        
+                        tabButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        button.classList.add('active');
+                        
+                        tabContents.forEach(content => {
+                            if (content.id === targetId) {
+                                content.classList.remove('hidden');
+                            } else {
+                                content.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+            }
+
+            const funnelData = {
+                labels: ['Contatos Iniciados', 'Leads com Interesse', 'Leads Qualificados', 'Reuniões Agendadas', 'Propostas Enviadas', 'Fechamentos'],
+                values: [200, 60, 30, 10, 10, 7], 
+                goals: [200, 60, 30, 10, 10, '5-8'],
+                conversions: [null, 30, 50, 33.3, 100, 70]
+            };
+
+            const ctx = document.getElementById('salesFunnelChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: funnelData.labels,
+                    datasets: [{
+                        label: 'Meta Semanal',
+                        data: funnelData.values,
+                        backgroundColor: [
+                            'rgba(120, 53, 15, 0.8)',
+                            'rgba(120, 53, 15, 0.7)',
+                            'rgba(120, 53, 15, 0.6)',
+                            'rgba(120, 53, 15, 0.5)',
+                            'rgba(120, 53, 15, 0.4)',
+                            'rgba(120, 53, 15, 0.3)'
+                        ],
+                        borderColor: 'rgba(120, 53, 15, 1)',
+                        borderWidth: 1,
+                        barPercentage: 1.0,
+                        categoryPercentage: 0.9,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { display: true }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                font: {
+                                    size: 14,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const goal = funnelData.goals[index];
+                                    const conversion = funnelData.conversions[index];
+                                    let label = `Meta: ${goal}`;
+                                    if(conversion !== null) {
+                                       label += ` | Conversão: ${conversion.toFixed(1)}%`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        function copyToClipboard(elementId, button) {
+            const textToCopy = document.getElementById(elementId).innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            
+            const feedbackEl = document.getElementById('copy-feedback');
+            feedbackEl.classList.remove('opacity-0');
+            const originalText = button.innerHTML;
+            button.innerHTML = 'Copiado!';
+
+            setTimeout(() => {
+                feedbackEl.classList.add('opacity-0');
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
