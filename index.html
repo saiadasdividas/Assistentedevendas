@@ -143,7 +143,7 @@
                 <h3 class="text-2xl font-semibold text-primary">Painel de Registros Diários</h3>
                 <div class="tabs flex-shrink-0 border border-stone-200 rounded-lg p-1">
                     <button class="tab-button daily-log-tab active px-4 py-2 text-sm rounded-md" data-target="sdr-log-tool" data-role-tab="sdr">📝 SDR</button>
-                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">📊 Vendedor</button>
+                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">� Vendedor</button>
                 </div>
             </div>
             <div id="sdr-log-tool" class="daily-log-content">
@@ -218,7 +218,7 @@
         <section id="funcoes" class="scroll-mt-20" data-role="all">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-2xl shadow space-y-4" data-role-column="sdr"><h3 class="text-2xl font-semibold text-primary">SDR (Sales Development Rep)</h3><p class="text-stone-600">O pré-vendedor focado em prospecção e qualificação de leads.</p><div id="sdr-tasks-accordion" class="space-y-2"><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Principais Responsabilidades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Prospecção Ativa</li><li>Primeiro Contato</li><li>Gestão de CRM</li><li>Follow-up</li><li>Qualificar clientes</li></ul></div></div><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Plano Diário de Atividades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul id="sdr-daily-plan" class="list-disc list-inside text-stone-600 space-y-1"></ul><div class="admin-only mt-4 pt-4 border-t"><textarea id="sdr-plan-input" rows="8" class="w-full p-2 border rounded-lg text-sm"></textarea><button id="save-sdr-plan-btn" class="mt-2 bg-primary text-white text-xs font-semibold py-1 px-3 rounded-lg">Salvar Plano</button></div></div></div></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow space-y-4" data-role-column="vendedor"><h3 class="text-2xl font-semibold text-primary">Vendedor (Fechador)</h3><p class="text-stone-600">Pega os clientes qualificados e fecha a venda.</p><div id="vendedor-tasks-accordion" class="space-y-2"><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Principais Responsabilidades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Apresentar produtos</li><li>Elaborar propostas</li><li>Negociar preços</li><li>Fechar a venda</li><li>Pós-venda</li></ul></div></div><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Plano Diário de Atividades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Analisar Leads (2-3)</li><li>Apresentações (2-3)</li><li>Propostas (2)</li><li>Follow-up (3-4)</li><li>Fechamentos (2)</li><li>Reativação (5)</li></ul></div></div></div></div>
+                <div class="bg-white p-6 rounded-2xl shadow space-y-4" data-role-column="vendedor"><h3 class="text-2xl font-semibold text-primary">Vendedor (Fechador)</h3><p class="text-stone-600">Pega os clientes qualificados e fecha a venda.</p><div id="vendedor-tasks-accordion" class="space-y-2"><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Principais Responsabilidades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Apresentar produtos</li><li>Elaborar propostas</li><li>Negociar preços</li><li>Fechar a venda</li><li>Pós-venda</li></ul></div></div><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Plano Diário de Atividades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul id="vendedor-daily-plan" class="list-disc list-inside text-stone-600 space-y-1"></ul><div class="admin-only mt-4 pt-4 border-t"><textarea id="vendedor-plan-input" rows="6" class="w-full p-2 border rounded-lg text-sm"></textarea><button id="save-vendedor-plan-btn" class="mt-2 bg-primary text-white text-xs font-semibold py-1 px-3 rounded-lg">Salvar Plano</button></div></div></div></div></div>
             </div>
         </section>
 
@@ -242,7 +242,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // All JS logic is now included
             const ADMIN_PASSWORD = 'conceito2024';
             let isAdmin = false;
 
@@ -293,14 +292,6 @@
             setupTabs('#registro-diario', '.daily-log-tab', '.daily-log-content');
             setupTabs('#painel-operacional', '.operational-tab', '.operational-content');
 
-
-            const funnelData = {
-                labels: ['Contatos Iniciados', 'Leads com Interesse', 'Leads Qualificados', 'Reuniões Agendadas', 'Propostas Enviadas', 'Fechamentos'],
-                values: [200, 60, 30, 10, 10, 7], 
-                goals: [200, 60, 30, 10, 10, '5-8'],
-                conversions: [null, 30, 50, 33.3, 100, 70]
-            };
-
             // Admin Logic
             const adminLoginBtn = document.getElementById('admin-login-btn');
             const adminPasswordInput = document.getElementById('admin-password');
@@ -315,6 +306,7 @@
                 renderCompetitors();
                 renderDeals();
                 renderSdrPlan();
+                renderVendedorPlan();
                 renderCustomFunnel();
             };
             
@@ -887,6 +879,33 @@
                 alert('Plano diário do SDR salvo com sucesso!');
             });
             
+            // Vendedor Daily Plan Logic
+            const vendedorPlanList = document.getElementById('vendedor-daily-plan');
+            const vendedorPlanInput = document.getElementById('vendedor-plan-input');
+            const saveVendedorPlanBtn = document.getElementById('save-vendedor-plan-btn');
+            const defaultVendedorPlan = [
+                "Analisar Leads (2-3)",
+                "Apresentações (2-3)",
+                "Propostas (2)",
+                "Follow-up (3-4)",
+                "Fechamentos (2)",
+                "Reativação (5)"
+            ];
+            let vendedorPlan = JSON.parse(localStorage.getItem('vendedorDailyPlan')) || defaultVendedorPlan;
+
+            const renderVendedorPlan = () => {
+                vendedorPlanList.innerHTML = vendedorPlan.map(item => `<li>${item}</li>`).join('');
+                vendedorPlanInput.value = vendedorPlan.join('\n');
+            };
+
+            saveVendedorPlanBtn.addEventListener('click', () => {
+                const newPlan = vendedorPlanInput.value.split('\n').filter(item => item.trim() !== '');
+                vendedorPlan = newPlan;
+                localStorage.setItem('vendedorDailyPlan', JSON.stringify(vendedorPlan));
+                renderVendedorPlan();
+                alert('Plano diário do Vendedor salvo com sucesso!');
+            });
+
             // Custom Funnel Logic
             const customFunnelDisplay = document.getElementById('custom-funnel-display');
             const funnelStageInput = document.getElementById('funnel-stage-input');
@@ -984,9 +1003,11 @@
             renderGoals();
             renderCompetitors();
             renderSdrPlan();
+            renderVendedorPlan();
             renderCustomFunnel();
             renderProcess();
         });
     </script>
 </body>
 </html>
+�
