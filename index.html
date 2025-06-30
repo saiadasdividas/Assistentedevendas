@@ -140,7 +140,7 @@
                 <h3 class="text-2xl font-semibold text-primary">Painel de Registros Diários</h3>
                 <div class="tabs flex-shrink-0 border border-stone-200 rounded-lg p-1">
                     <button class="tab-button daily-log-tab active px-4 py-2 text-sm rounded-md" data-target="sdr-log-tool" data-role-tab="sdr">📝 SDR</button>
-                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">📊 Vendedor</button>
+                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">� Vendedor</button>
                 </div>
             </div>
             <div id="sdr-log-tool" class="daily-log-content">
@@ -251,14 +251,24 @@
             appId: "1:278682251609:web:1c518e7481964c083e1c48"
         };
         
-        initializeAppLogic();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                console.log("User is signed in:", user.uid);
+                initializeAppLogic(db, auth);
+            } else {
+                 console.log("User is signed out. Attempting to sign in.");
+                 signInAnonymously(auth).catch(error => {
+                    console.error("Anonymous sign-in failed:", error);
+                 });
+            }
+        });
 
-        function initializeAppLogic() {
+        function initializeAppLogic(db, auth) {
             const appId = firebaseConfig.projectId;
-
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            const auth = getAuth(app);
 
             const sdrLogCol = collection(db, `artifacts/${appId}/public/data/sdr-logs`);
             const vendedorLogCol = collection(db, `artifacts/${appId}/public/data/vendedor-logs`);
@@ -284,7 +294,6 @@
             
             function renderSdrLog(logs) {
                 const sdrLogTableBody = document.getElementById('sdr-log-table-body');
-                if(!sdrLogTableBody) return;
                 sdrLogTableBody.innerHTML = '';
                 logs.sort((a, b) => b.timestamp - a.timestamp);
                 logs.forEach(entry => {
@@ -307,7 +316,6 @@
             
             function renderVendedorLog(logs) {
                 const vendedorLogTableBody = document.getElementById('vendedor-log-table-body');
-                if(!vendedorLogTableBody) return;
                 vendedorLogTableBody.innerHTML = '';
                 logs.sort((a, b) => b.timestamp - a.timestamp);
                 logs.forEach(entry => {
@@ -331,7 +339,6 @@
             
             function renderTasks(tasks) {
                 const taskListEl = document.getElementById('task-list');
-                if(!taskListEl) return;
                 taskListEl.innerHTML = '';
                 tasks.sort((a, b) => b.timestamp - a.timestamp);
                 tasks.forEach(task => {
@@ -564,8 +571,8 @@
                 isAdmin = true;
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
                 document.getElementById('admin-login-area').innerHTML = '<p class="text-green-400 text-xs">Modo Administrador Ativado.</p>';
-                renderDeals();
-                renderCustomFunnel();
+                onSnapshot(query(dealsCol), (snapshot) => renderDeals(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+                onSnapshot(funnelDoc, (doc) => renderCustomFunnel(doc.exists() ? doc.data().stages : ['Prospecção', 'Qualificação', 'Apresentação', 'Negociação', 'Fechamento']));
             };
 
             // --- Event Listeners and Handlers ---
@@ -895,25 +902,7 @@
             onSnapshot(vendedorPlanDoc, (doc) => renderVendedorPlan(doc.exists() ? doc.data().plan : defaultVendedorPlan));
             onSnapshot(funnelDoc, (doc) => renderCustomFunnel(doc.exists() ? doc.data().stages : ['Prospecção', 'Qualificação', 'Apresentação', 'Negociação', 'Fechamento']));
         }
-
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                console.log("User is signed in:", user.uid);
-                initializeAppLogic();
-            } else {
-                 console.log("User is signed out. Attempting to sign in.");
-                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    signInWithCustomToken(auth, __initial_auth_token).catch(error => {
-                        console.error("Custom token sign-in failed, trying anonymous:", error);
-                        signInAnonymously(auth);
-                    });
-                } else {
-                    signInAnonymously(auth).catch(error => {
-                        console.error("Anonymous sign-in failed:", error);
-                    });
-                }
-            }
-        });
     </script>
 </body>
 </html>
+�
