@@ -478,7 +478,6 @@
             
             setupAccordions('sdr-tasks-accordion');
             setupAccordions('vendedor-tasks-accordion');
-            setupAccordions('objections-accordion');
             
             function setupTabs(containerSelector, buttonSelector, contentSelector) {
                  const tabsContainer = document.querySelector(containerSelector);
@@ -574,6 +573,7 @@
                 renderSdrLog();
                 renderVendedorLog();
                 renderCompetitors();
+                renderDeals(); // Re-render deals to show admin buttons
             };
             
             adminLoginBtn.addEventListener('click', () => {
@@ -765,11 +765,13 @@
             // Vendedor Pipeline
             const dealInput = document.getElementById('new-deal-input');
             const addDealBtn = document.getElementById('add-deal-btn');
+            const pipelineContainer = document.getElementById('vendedor-pipeline-tool');
             let deals = JSON.parse(localStorage.getItem('salesPipelineDeals')) || [];
 
             const renderDeals = () => {
                 document.querySelectorAll('.pipeline-list').forEach(list => {
-                    list.innerHTML = `<h4 class="font-bold text-center mb-2 pointer-events-none">${list.querySelector('h4').textContent}</h4>`;
+                    const title = list.querySelector('h4').outerHTML;
+                    list.innerHTML = title;
                 });
                 deals.forEach((deal, index) => {
                     const dealEl = document.createElement('div');
@@ -777,10 +779,21 @@
                     dealEl.setAttribute('draggable', true);
                     dealEl.dataset.index = index;
 
-                    dealEl.innerHTML = `<p class="font-semibold">${deal.text}</p>`;
+                    dealEl.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <p class="font-semibold flex-grow">${deal.text}</p>
+                            <div class="admin-only flex-shrink-0 ml-2 space-x-1">
+                                <button data-index="${index}" class="edit-deal-btn text-blue-600 hover:text-blue-800 p-1 text-xs">✏️</button>
+                                <button data-index="${index}" class="delete-deal-btn text-red-600 hover:text-red-800 p-1 text-xs">🗑️</button>
+                            </div>
+                        </div>
+                    `;
                     document.querySelector(`.pipeline-list[data-stage="${deal.stage}"]`).appendChild(dealEl);
                 });
                  addDragAndDropHandlers();
+                 if (isAdmin) {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'revert');
+                 }
             };
 
             const addDragAndDropHandlers = () => {
@@ -789,6 +802,10 @@
 
                 dealElements.forEach(dealEl => {
                     dealEl.addEventListener('dragstart', (e) => {
+                        if (e.target.closest('.edit-deal-btn') || e.target.closest('.delete-deal-btn')) {
+                            e.preventDefault();
+                            return;
+                        }
                         e.dataTransfer.setData('text/plain', e.target.dataset.index);
                         setTimeout(() => {
                            e.target.classList.add('opacity-50');
@@ -838,6 +855,30 @@
 
             dealInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') addDealBtn.click();
+            });
+
+            pipelineContainer.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-deal-btn');
+                if (editBtn) {
+                    const index = editBtn.dataset.index;
+                    const currentText = deals[index].text;
+                    const newText = prompt('Editar nome do cliente/lead:', currentText);
+                    if (newText && newText.trim() !== '') {
+                        deals[index].text = newText.trim();
+                        localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
+                        renderDeals();
+                    }
+                }
+
+                const deleteBtn = e.target.closest('.delete-deal-btn');
+                if (deleteBtn) {
+                    const index = deleteBtn.dataset.index;
+                    if (confirm(`Tem certeza que deseja excluir "${deals[index].text}"?`)) {
+                        deals.splice(index, 1);
+                        localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
+                        renderDeals();
+                    }
+                }
             });
             
             // Sales Calculator
