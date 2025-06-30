@@ -4,17 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Chosen Palette: Earthy Craft -->
-    <!-- Application Structure Plan: A single-page application designed as an interactive playbook for the Embalagens Conceito sales team. The structure is thematic and task-oriented, rather than linear, to allow for quick access to relevant information. It starts with company context ("Nossa Missão"), then clearly defines roles ("SDR vs. Vendedor") using a comparative layout. The core is an interactive sales funnel chart ("O Funil de Vendas") to visualize goals. It then provides practical tools in dedicated sections: a "Playbook de Prospecção" with ICP, BANT, and copyable scripts, and a "Dominando Objeções" section with interactive accordions. The final section, "Processos e Cultura," consolidates procedures like the handoff and meeting cadences. This structure was chosen to be a practical, easy-to-navigate tool that supports daily sales activities, transforming a static PDF into a dynamic resource. -->
+    <!-- Application Structure Plan: A single-page application designed as an interactive operations platform for the Embalagens Conceito sales team. The structure is task-oriented, focusing on daily data entry and performance tracking. It begins with core reference materials (Roles, Funnel, Playbook) and features a central "Registro Diário" section for daily inputs from both SDRs and Salespeople. This replaces previous generic tools with a structured data logging system. -->
     <!-- Visualization & Content Choices: 
-        - Sales Funnel Metrics -> Goal: Visualize weekly targets & conversion. -> Viz: Funnel Chart. -> Interaction: Hover for details. -> Justification: More intuitive than a list of numbers for understanding conversion flow. -> Library: Chart.js (Bar Chart styled as Funnel).
-        - SDR vs Vendedor Roles -> Goal: Compare roles and detail tasks without clutter. -> Viz: Two-column layout with expandable accordions. -> Interaction: Click to expand/collapse. -> Justification: Allows high-level comparison with drill-down capability, preventing information overload. -> Method: HTML/CSS + JS.
-        - Objection Handling Scripts -> Goal: Quick access to responses. -> Viz: Interactive accordion. -> Interaction: Click to reveal script. -> Justification: Mimics a real-world scenario needing a quick answer. -> Method: HTML/CSS + JS.
-        - Handoff Process -> Goal: Illustrate lead transfer steps. -> Viz: Step-by-step visual diagram. -> Interaction: None. -> Justification: Visual flow is easier to remember than text. -> Method: HTML/CSS with flexbox and Unicode icons.
-        - Scripts (WhatsApp/Call) -> Goal: Make scripts easy to use. -> Viz: Blocks within tabs. -> Interaction: Copy to clipboard button. -> Justification: Highly practical for pasting into other apps. -> Method: HTML/CSS + JS.
-        - Daily Tools (NEW) -> Goal: Provide daily utility. -> Viz: Tabbed component with a To-Do list for SDRs and a Kanban-like pipeline for Sales. -> Interaction: Add, complete, delete tasks; move deals across stages. Data saved to localStorage. -> Justification: Transforms the page from a static reference to a dynamic daily workspace.
+        - Daily Log (SDR & Sales) -> Goal: Enable structured daily data entry for performance management. -> Viz: Tabbed interface with forms for input and tables for historical logs. -> Interaction: Users fill forms and click "Registrar". Data is saved to localStorage and displayed in a table with a timestamp. -> Justification: Provides a persistent, practical tool for daily use, addressing the user's need for better data management.
+        - Sales Funnel Chart -> Goal: Visualize weekly targets & conversion. -> Viz: Funnel Chart (Bar). -> Interaction: Hover for details. -> Library: Chart.js.
+        - Role Definitions -> Goal: Clarify responsibilities. -> Viz: Expandable accordions. -> Method: HTML/CSS + JS.
+        - Objection Handling -> Goal: Quick reference scripts. -> Viz: Expandable accordions. -> Method: HTML/CSS + JS.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <title>Plataforma de Vendas - Embalagens Conceito</title>
+    <title>Plataforma de Vendas e Gestão - Embalagens Conceito</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,10 +40,6 @@
             color: #78350f;
             font-weight: 600;
         }
-        .task-item.completed {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
@@ -57,7 +51,7 @@
                      <span class="text-xl font-bold text-amber-900">Embalagens Conceito</span>
                 </div>
                 <nav class="hidden md:flex md:space-x-6 lg:space-x-8">
-                    <a href="#dashboard" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Painel Diário</a>
+                    <a href="#registro-diario" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Registro Diário</a>
                     <a href="#funcoes" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funções</a>
                     <a href="#funil" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funil</a>
                     <a href="#playbook" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Playbook</a>
@@ -71,59 +65,78 @@
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         <section id="missao" class="text-center mb-20 scroll-mt-20">
-            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-tight">Plataforma de Vendas e Operações</h1>
-            <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Sua ferramenta diária para organização, prospecção, aprendizado e resultados na Embalagens Conceito.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-tight">Plataforma de Vendas e Gestão</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Sua ferramenta diária para registro de atividades, acompanhamento de metas e consulta de materiais na Embalagens Conceito.</p>
         </section>
         
-        <section id="dashboard" class="mb-20 scroll-mt-20">
+        <section id="registro-diario" class="mb-20 scroll-mt-20">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Painel de Controle Diário</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Organize suas tarefas e visualize suas oportunidades. Os dados são salvos automaticamente no seu navegador.</p>
+                <h2 class="text-3xl font-bold tracking-tight">Painel de Registros Diários</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Registre suas atividades e resultados diários para uma gestão eficiente. Os dados são salvos localmente no seu navegador.</p>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                <div class="border-b border-stone-200 mb-4">
+                <div class="border-b border-stone-200 mb-6">
                     <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                        <button class="tab-button daily-tool-tab active" data-target="sdr-tool">📝 Tarefas do Dia (SDR)</button>
-                        <button class="tab-button daily-tool-tab" data-target="vendedor-tool">📊 Pipeline de Vendas (Vendedor)</button>
+                        <button class="tab-button daily-log-tab active" data-target="sdr-log-tool">📝 Registro SDR</button>
+                        <button class="tab-button daily-log-tab" data-target="vendedor-log-tool">📊 Registro Vendedor</button>
                     </nav>
                 </div>
                 
-                <div id="sdr-tool" class="daily-tool-content">
-                    <div class="flex gap-4 mb-4">
-                        <input type="text" id="new-task-input" placeholder="Adicionar nova tarefa de prospecção..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
-                        <button id="add-task-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar</button>
+                <div id="sdr-log-tool" class="daily-log-content">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">Registro de Atividades do SDR</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <input type="number" id="sdr-prospeccoes" placeholder="Nº Prospecções" class="p-2 border rounded-lg">
+                        <input type="number" id="sdr-nutricoes" placeholder="Nº Leads Nutridos" class="p-2 border rounded-lg">
                     </div>
-                    <div id="task-list" class="space-y-2"></div>
+                    <textarea id="sdr-resumo" placeholder="Resumo das atividades e insights do dia..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
+                    <button id="add-sdr-log-btn" class="w-full bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Registrar Atividades do Dia</button>
+                    
+                    <hr class="my-6">
+                    <h4 class="text-lg font-bold mb-4">Histórico de Atividades - SDR</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-stone-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">Data</th>
+                                    <th class="py-2 px-4 text-left">Prospecções</th>
+                                    <th class="py-2 px-4 text-left">Nutridos</th>
+                                    <th class="py-2 px-4 text-left">Resumo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sdr-log-table-body">
+                                <!-- Log data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div id="vendedor-tool" class="daily-tool-content hidden">
-                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div id="pipeline-qualificado" class="bg-stone-100 p-4 rounded-lg">
-                            <h4 class="font-bold text-center mb-2">Lead Qualificado</h4>
-                            <div class="pipeline-list space-y-2" data-stage="qualificado"></div>
-                        </div>
-                        <div id="pipeline-proposta" class="bg-stone-100 p-4 rounded-lg">
-                            <h4 class="font-bold text-center mb-2">Proposta Enviada</h4>
-                            <div class="pipeline-list space-y-2" data-stage="proposta"></div>
-                        </div>
-                        <div id="pipeline-negociacao" class="bg-stone-100 p-4 rounded-lg">
-                             <h4 class="font-bold text-center mb-2">Em Negociação</h4>
-                             <div class="pipeline-list space-y-2" data-stage="negociacao"></div>
-                        </div>
-                        <div class="space-y-4">
-                           <div id="pipeline-fechado" class="bg-green-100 p-4 rounded-lg">
-                                <h4 class="font-bold text-green-800 text-center mb-2">Fechado</h4>
-                                <div class="pipeline-list space-y-2" data-stage="fechado"></div>
-                            </div>
-                            <div id="pipeline-perdido" class="bg-red-100 p-4 rounded-lg">
-                                <h4 class="font-bold text-red-800 text-center mb-2">Perdido</h4>
-                                <div class="pipeline-list space-y-2" data-stage="perdido"></div>
-                            </div>
-                        </div>
+                <div id="vendedor-log-tool" class="daily-log-content hidden">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">Registro de Resultados do Vendedor</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <input type="number" id="vendedor-vendas" placeholder="Nº Vendas Fechadas" class="p-2 border rounded-lg">
+                        <input type="number" id="vendedor-conversoes" placeholder="Nº Leads Convertidos" class="p-2 border rounded-lg">
+                        <input type="number" id="vendedor-reativacoes" placeholder="Nº Clientes Reativados" class="p-2 border rounded-lg">
                     </div>
-                    <div class="mt-4 flex gap-4">
-                         <input type="text" id="new-deal-input" placeholder="Nome do novo lead..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
-                        <button id="add-deal-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar Lead</button>
+                    <textarea id="vendedor-notas" placeholder="Notas importantes, vendas chave, feedbacks de clientes..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
+                    <button id="add-vendedor-log-btn" class="w-full bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Registrar Resultados do Dia</button>
+
+                    <hr class="my-6">
+                    <h4 class="text-lg font-bold mb-4">Histórico de Resultados - Vendedor</h4>
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-stone-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">Data</th>
+                                    <th class="py-2 px-4 text-left">Vendas</th>
+                                    <th class="py-2 px-4 text-left">Conversões</th>
+                                    <th class="py-2 px-4 text-left">Reativações</th>
+                                    <th class="py-2 px-4 text-left">Notas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendedor-log-table-body">
+                                <!-- Log data will be inserted here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -258,25 +271,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">3. Qualificação Rápida para CRM</h3>
-                    <p class="text-stone-600 mb-4">Preencha os campos abaixo para gerar um resumo padronizado. Depois, copie e cole no seu CRM ou planilha.</p>
-                    <div id="crm-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="crm-nome-cliente" placeholder="Nome do Cliente" class="p-2 border rounded-lg">
-                        <input type="text" id="crm-nome-loja" placeholder="Nome da Loja / Perfil" class="p-2 border rounded-lg">
-                        <input type="text" id="crm-local" placeholder="Cidade / Estado" class="p-2 border rounded-lg">
-                        <input type="text" id="crm-tipo-loja" placeholder="Tipo de Loja" class="p-2 border rounded-lg">
-                        <textarea id="crm-dores" placeholder="Dores e Objeções principais..." rows="3" class="md:col-span-2 p-2 border rounded-lg"></textarea>
-                    </div>
-                    <button id="generate-crm-summary" class="mt-4 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Gerar Resumo</button>
-                    <div id="crm-summary-container" class="mt-4 hidden">
-                        <h4 class="font-bold">Resumo para Copiar:</h4>
-                        <div id="crm-summary-output" class="bg-stone-100 p-4 rounded-lg mt-2 text-stone-700 whitespace-pre-wrap"></div>
-                        <button onclick="copyToClipboard('crm-summary-output', this)" class="mt-3 bg-green-600 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Copiar Resumo</button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">4. Dominando Objeções</h3>
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">3. Dominando Objeções</h3>
                     <p class="text-stone-600 mb-4">Objeções não são um "não", são um pedido por mais informações. Use este guia para transformar dúvidas em oportunidades.</p>
                     <div id="objections-accordion" class="space-y-2">
                         <div class="accordion-item">
@@ -428,14 +423,10 @@
     <footer class="bg-stone-800 text-white">
         <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
             <p>&copy; 2024 Embalagens Conceito. Todos os direitos reservados.</p>
-            <p class="opacity-70">Plataforma de Vendas e Operações</p>
+            <p class="opacity-70">Plataforma de Vendas e Gestão</p>
         </div>
     </footer>
     
-    <div id="copy-feedback" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300">
-        Texto copiado!
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
@@ -483,7 +474,7 @@
                 }
             }
 
-            setupTabs('#dashboard', '.daily-tool-tab', '.daily-tool-content');
+            setupTabs('#registro-diario', '.daily-log-tab', '.daily-log-content');
 
             const funnelData = {
                 labels: ['Contatos Iniciados', 'Leads com Interesse', 'Leads Qualificados', 'Reuniões Agendadas', 'Propostas Enviadas', 'Fechamentos'],
@@ -538,151 +529,98 @@
                 }
             });
 
-            // Daily Tools Logic
-            // SDR Task List
-            const taskInput = document.getElementById('new-task-input');
-            const addTaskBtn = document.getElementById('add-task-btn');
-            const taskList = document.getElementById('task-list');
-            let tasks = JSON.parse(localStorage.getItem('sdrTasks')) || [];
+            // Daily Log Logic
+            const sdrLog = JSON.parse(localStorage.getItem('sdrDailyLog')) || [];
+            const vendedorLog = JSON.parse(localStorage.getItem('vendedorDailyLog')) || [];
 
-            const renderTasks = () => {
-                taskList.innerHTML = '';
-                tasks.forEach((task, index) => {
-                    const taskEl = document.createElement('div');
-                    taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
-                    taskEl.innerHTML = `
-                        <span>${task.text}</span>
-                        <div class="flex items-center gap-2">
-                            <button data-index="${index}" class="toggle-task-btn text-green-600">✓</button>
-                            <button data-index="${index}" class="delete-task-btn text-red-600">✗</button>
-                        </div>
+            const renderSdrLog = () => {
+                const tableBody = document.getElementById('sdr-log-table-body');
+                tableBody.innerHTML = '';
+                sdrLog.forEach(entry => {
+                    const row = tableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-2 px-4 text-sm">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
+                        <td class="py-2 px-4">${entry.prospeccoes}</td>
+                        <td class="py-2 px-4">${entry.nutricoes}</td>
+                        <td class="py-2 px-4 text-sm">${entry.resumo}</td>
                     `;
-                    taskList.appendChild(taskEl);
                 });
             };
 
-            addTaskBtn.addEventListener('click', () => {
-                const taskText = taskInput.value.trim();
-                if (taskText) {
-                    tasks.push({ text: taskText, completed: false });
-                    taskInput.value = '';
-                    localStorage.setItem('sdrTasks', JSON.stringify(tasks));
-                    renderTasks();
-                }
-            });
-            
-            taskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addTaskBtn.click();
-            });
-
-            taskList.addEventListener('click', (e) => {
-                const index = e.target.dataset.index;
-                if (e.target.classList.contains('toggle-task-btn')) {
-                    tasks[index].completed = !tasks[index].completed;
-                }
-                if (e.target.classList.contains('delete-task-btn')) {
-                    tasks.splice(index, 1);
-                }
-                localStorage.setItem('sdrTasks', JSON.stringify(tasks));
-                renderTasks();
-            });
-            
-            // Vendedor Pipeline
-            const dealInput = document.getElementById('new-deal-input');
-            const addDealBtn = document.getElementById('add-deal-btn');
-            let deals = JSON.parse(localStorage.getItem('salesDeals')) || [];
-
-            const renderDeals = () => {
-                document.querySelectorAll('.pipeline-list').forEach(list => list.innerHTML = '');
-                deals.forEach((deal, index) => {
-                    const dealEl = document.createElement('div');
-                    dealEl.className = 'p-2 bg-white rounded shadow text-sm';
-                    dealEl.innerHTML = `
-                        <p class="font-semibold">${deal.text}</p>
-                        <div class="mt-2 text-xs flex gap-1">
-                            ${deal.stage !== 'qualificado' ? `<button data-index="${index}" data-to="qualificado" class="move-deal-btn">Qual.</button>` : ''}
-                            ${deal.stage !== 'proposta' ? `<button data-index="${index}" data-to="proposta" class="move-deal-btn">Prop.</button>` : ''}
-                            ${deal.stage !== 'negociacao' ? `<button data-index="${index}" data-to="negociacao" class="move-deal-btn">Negoc.</button>` : ''}
-                            ${deal.stage !== 'fechado' ? `<button data-index="${index}" data-to="fechado" class="move-deal-btn text-green-600">Ganho</button>` : ''}
-                            ${deal.stage !== 'perdido' ? `<button data-index="${index}" data-to="perdido" class="move-deal-btn text-red-600">Perdido</button>` : ''}
-                        </div>
+            const renderVendedorLog = () => {
+                const tableBody = document.getElementById('vendedor-log-table-body');
+                tableBody.innerHTML = '';
+                vendedorLog.forEach(entry => {
+                    const row = tableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-2 px-4 text-sm">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
+                        <td class="py-2 px-4">${entry.vendas}</td>
+                        <td class="py-2 px-4">${entry.conversoes}</td>
+                        <td class="py-2 px-4">${entry.reativacoes}</td>
+                        <td class="py-2 px-4 text-sm">${entry.notas}</td>
                     `;
-                    document.querySelector(`.pipeline-list[data-stage="${deal.stage}"]`).appendChild(dealEl);
                 });
             };
-            
-            addDealBtn.addEventListener('click', () => {
-                const dealText = dealInput.value.trim();
-                if(dealText) {
-                    deals.push({ text: dealText, stage: 'qualificado' });
-                    dealInput.value = '';
-                    localStorage.setItem('salesDeals', JSON.stringify(deals));
-                    renderDeals();
-                }
-            });
 
-            dealInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addDealBtn.click();
-            });
+            document.getElementById('add-sdr-log-btn').addEventListener('click', () => {
+                const prospeccoes = document.getElementById('sdr-prospeccoes').value;
+                const nutricoes = document.getElementById('sdr-nutricoes').value;
+                const resumo = document.getElementById('sdr-resumo').value;
 
-            document.getElementById('vendedor-tool').addEventListener('click', (e) => {
-                if (e.target.classList.contains('move-deal-btn')) {
-                    const index = e.target.dataset.index;
-                    const newStage = e.target.dataset.to;
-                    deals[index].stage = newStage;
-                    localStorage.setItem('salesDeals', JSON.stringify(deals));
-                    renderDeals();
-                }
-            });
-            
-            // CRM Summary Generator
-            document.getElementById('generate-crm-summary').addEventListener('click', () => {
-                const nomeCliente = document.getElementById('crm-nome-cliente').value;
-                const nomeLoja = document.getElementById('crm-nome-loja').value;
-                const local = document.getElementById('crm-local').value;
-                const tipoLoja = document.getElementById('crm-tipo-loja').value;
-                const dores = document.getElementById('crm-dores').value;
-
-                if(!nomeCliente || !nomeLoja) {
-                    alert('Por favor, preencha pelo menos o Nome do Cliente e da Loja.');
+                if (!prospeccoes && !nutricoes && !resumo) {
+                    alert('Preencha pelo menos um campo para registrar.');
                     return;
                 }
 
-                const summary = `
-## Resumo do Lead: ${nomeLoja} ##
-- **Contato:** ${nomeCliente}
-- **Local:** ${local}
-- **Tipo de Loja:** ${tipoLoja}
-- **Dores/Observações:** ${dores}
-                `;
-                document.getElementById('crm-summary-output').innerText = summary.trim();
-                document.getElementById('crm-summary-container').classList.remove('hidden');
+                sdrLog.unshift({
+                    date: new Date().toISOString(),
+                    prospeccoes: prospeccoes || 0,
+                    nutricoes: nutricoes || 0,
+                    resumo: resumo || 'N/A'
+                });
+
+                localStorage.setItem('sdrDailyLog', JSON.stringify(sdrLog));
+                renderSdrLog();
+
+                document.getElementById('sdr-prospeccoes').value = '';
+                document.getElementById('sdr-nutricoes').value = '';
+                document.getElementById('sdr-resumo').value = '';
             });
             
+            document.getElementById('add-vendedor-log-btn').addEventListener('click', () => {
+                const vendas = document.getElementById('vendedor-vendas').value;
+                const conversoes = document.getElementById('vendedor-conversoes').value;
+                const reativacoes = document.getElementById('vendedor-reativacoes').value;
+                const notas = document.getElementById('vendedor-notas').value;
+
+                if (!vendas && !conversoes && !reativacoes && !notas) {
+                    alert('Preencha pelo menos um campo para registrar.');
+                    return;
+                }
+
+                vendedorLog.unshift({
+                    date: new Date().toISOString(),
+                    vendas: vendas || 0,
+                    conversoes: conversoes || 0,
+                    reativacoes: reativacoes || 0,
+                    notas: notas || 'N/A'
+                });
+
+                localStorage.setItem('vendedorDailyLog', JSON.stringify(vendedorLog));
+                renderVendedorLog();
+
+                document.getElementById('vendedor-vendas').value = '';
+                document.getElementById('vendedor-conversoes').value = '';
+                document.getElementById('vendedor-reativacoes').value = '';
+                document.getElementById('vendedor-notas').value = '';
+            });
+
             // Initial render
-            renderTasks();
-            renderDeals();
+            renderSdrLog();
+            renderVendedorLog();
         });
-
-        function copyToClipboard(elementId, button) {
-            const textToCopy = document.getElementById(elementId).innerText;
-            const tempTextArea = document.createElement('textarea');
-            tempTextArea.value = textToCopy;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextArea);
-            
-            const feedbackEl = document.getElementById('copy-feedback');
-            feedbackEl.classList.remove('opacity-0');
-            const originalText = button.innerText;
-            button.innerText = 'Copiado!';
-
-            setTimeout(() => {
-                feedbackEl.classList.add('opacity-0');
-                button.innerText = originalText;
-            }, 2000);
-        }
     </script>
 </body>
 </html>
