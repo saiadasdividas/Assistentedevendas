@@ -17,14 +17,11 @@
             }
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .chart-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; height: 350px; }
-        @media (min-width: 768px) { .chart-container { height: 450px; } }
         .admin-only { display: none; }
         .task-item.completed { text-decoration: line-through; opacity: 0.6; }
         .pipeline-list.drag-over { background-color: #fef3c7; border: 2px dashed #f59e0b; }
@@ -143,7 +140,7 @@
                 <h3 class="text-2xl font-semibold text-primary">Painel de Registros Diários</h3>
                 <div class="tabs flex-shrink-0 border border-stone-200 rounded-lg p-1">
                     <button class="tab-button daily-log-tab active px-4 py-2 text-sm rounded-md" data-target="sdr-log-tool" data-role-tab="sdr">📝 SDR</button>
-                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">� Vendedor</button>
+                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">📊 Vendedor</button>
                 </div>
             </div>
             <div id="sdr-log-tool" class="daily-log-content">
@@ -240,12 +237,292 @@
         <div id="admin-login-area" class="mt-2"><input id="admin-password" type="password" placeholder="Senha Admin" class="bg-stone-700 p-1 rounded text-xs text-center" /><button id="admin-login-btn" class="bg-accent text-primary font-bold py-1 px-2 rounded text-xs ml-1">Entrar</button><p id="admin-error" class="text-red-400 text-xs hidden mt-1">Senha incorreta.</p></div>
     </footer>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // All JS logic is now included
-            const ADMIN_PASSWORD = 'conceito2024';
-            let isAdmin = false;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, onSnapshot, deleteDoc, setDoc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- Firebase Configuration ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // --- Initialize Firebase ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- Collections References ---
+        const sdrLogCol = collection(db, `artifacts/${appId}/public/data/sdr-logs`);
+        const vendedorLogCol = collection(db, `artifacts/${appId}/public/data/vendedor-logs`);
+        const tasksCol = collection(db, `artifacts/${appId}/public/data/tasks`);
+        const dealsCol = collection(db, `artifacts/${appId}/public/data/deals`);
+        const competitorsCol = collection(db, `artifacts/${appId}/public/data/competitors`);
+        const settingsCol = collection(db, `artifacts/${appId}/public/data/settings`);
+        
+        // --- Single Document References ---
+        const campaignDoc = doc(settingsCol, 'campaign');
+        const goalsDoc = doc(settingsCol, 'goals');
+        const processDoc = doc(settingsCol, 'commercialProcess');
+        const sdrPlanDoc = doc(settingsCol, 'sdrDailyPlan');
+        const vendedorPlanDoc = doc(settingsCol, 'vendedorDailyPlan');
+        const funnelDoc = doc(settingsCol, 'customFunnel');
+
+        let isAdmin = false;
+        const ADMIN_PASSWORD = 'conceito2024';
+
+        // --- Authentication ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                console.log("User is signed in:", user.uid);
+                initializeAppLogic();
+            } else {
+                 console.log("User is signed out. Attempting to sign in.");
+                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    signInWithCustomToken(auth, __initial_auth_token).catch(error => {
+                        console.error("Custom token sign-in failed, trying anonymous:", error);
+                        signInAnonymously(auth);
+                    });
+                } else {
+                    signInAnonymously(auth).catch(error => {
+                        console.error("Anonymous sign-in failed:", error);
+                    });
+                }
+            }
+        });
+
+        function initializeAppLogic() {
+            // All functions are defined before being called
+            
+            // --- Render Functions ---
+            function renderSdrLog(logs) {
+                const sdrLogTableBody = document.getElementById('sdr-log-table-body');
+                sdrLogTableBody.innerHTML = '';
+                logs.forEach(entry => {
+                    const row = sdrLogTableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-2 px-4">${new Date(entry.timestamp?.toDate()).toLocaleDateString('pt-BR')}</td>
+                        <td class="py-2 px-4">${entry.prospeccoes}</td>
+                        <td class="py-2 px-4">${entry.nutricoes}</td>
+                        <td class="py-2 px-4">${entry.resumo}</td>
+                        <td class="py-2 px-4 admin-only">
+                            <button data-id="${entry.id}" class="delete-sdr-log-btn text-red-500 hover:text-red-700">Excluir</button>
+                        </td>
+                    `;
+                });
+                if (isAdmin) {
+                    document.querySelectorAll('.delete-sdr-log-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                }
+            };
+            
+            function renderVendedorLog(logs) {
+                const vendedorLogTableBody = document.getElementById('vendedor-log-table-body');
+                vendedorLogTableBody.innerHTML = '';
+                logs.forEach(entry => {
+                    const row = vendedorLogTableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-2 px-4">${new Date(entry.timestamp?.toDate()).toLocaleDateString('pt-BR')}</td>
+                        <td class="py-2 px-4">${entry.vendas}</td>
+                        <td class="py-2 px-4">${entry.conversoes}</td>
+                        <td class="py-2 px-4">${entry.reativacoes}</td>
+                        <td class="py-2 px-4">${entry.notas}</td>
+                        <td class="py-2 px-4 admin-only">
+                             <button data-id="${entry.id}" class="delete-vendedor-log-btn text-red-500 hover:text-red-700">Excluir</button>
+                        </td>
+                    `;
+                });
+                 if (isAdmin) {
+                    document.querySelectorAll('.delete-vendedor-log-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                }
+            };
+            
+            function renderTasks(tasks) {
+                const taskListEl = document.getElementById('task-list');
+                taskListEl.innerHTML = '';
+                tasks.forEach(task => {
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
+                    const adminTag = task.createdBy === 'Admin' ? '<span class="text-xs text-accent font-bold ml-2">(Admin)</span>' : '';
+                    taskEl.innerHTML = `
+                        <div>
+                            <span>${task.text}</span>
+                            ${adminTag}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button data-id="${task.id}" data-completed="${task.completed}" class="toggle-task-btn text-green-600">✓</button>
+                            <button data-id="${task.id}" class="delete-task-btn text-red-600">✗</button>
+                        </div>
+                    `;
+                    taskListEl.appendChild(taskEl);
+                });
+            };
+
+            function addDragAndDropHandlers() {
+                const pipelineLists = document.querySelectorAll('.pipeline-list');
+                pipelineLists.forEach(list => {
+                    list.addEventListener('dragover', e => { e.preventDefault(); list.classList.add('drag-over'); });
+                    list.addEventListener('dragleave', () => list.classList.remove('drag-over'));
+                    list.addEventListener('drop', async e => {
+                        e.preventDefault();
+                        list.classList.remove('drag-over');
+                        const docId = e.dataTransfer.getData('text/plain');
+                        const newStage = list.dataset.stage;
+                        if (docId) await updateDoc(doc(dealsCol, docId), { stage: newStage });
+                    });
+                });
+
+                document.querySelectorAll('.pipeline-list > div[draggable="true"]').forEach(dealEl => {
+                    dealEl.addEventListener('dragstart', e => {
+                        if (e.target.closest('.edit-deal-btn') || e.target.closest('.delete-deal-btn')) return e.preventDefault();
+                        e.dataTransfer.setData('text/plain', e.target.dataset.id);
+                        setTimeout(() => e.target.classList.add('opacity-50'), 0);
+                    });
+                    dealEl.addEventListener('dragend', e => e.target.classList.remove('opacity-50'));
+                });
+            };
+
+            function renderDeals(deals) {
+                document.querySelectorAll('.pipeline-list').forEach(list => {
+                    const title = list.querySelector('h5').outerHTML;
+                    list.innerHTML = title;
+                });
+                deals.forEach(deal => {
+                    const dealEl = document.createElement('div');
+                    dealEl.className = 'p-2 bg-white rounded shadow text-sm cursor-grab';
+                    dealEl.setAttribute('draggable', true);
+                    dealEl.dataset.id = deal.id;
+
+                    dealEl.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <p class="font-semibold flex-grow">${deal.text}</p>
+                            <div class="admin-only flex-shrink-0 ml-2 space-x-1">
+                                <button data-id="${deal.id}" data-text="${deal.text}" class="edit-deal-btn text-blue-600 hover:text-blue-800 p-1 text-xs">✏️</button>
+                                <button data-id="${deal.id}" data-text="${deal.text}" class="delete-deal-btn text-red-600 hover:text-red-800 p-1 text-xs">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                    document.querySelector(`.pipeline-list[data-stage="${deal.stage}"]`).appendChild(dealEl);
+                });
+                 addDragAndDropHandlers();
+                 if (isAdmin) {
+                    document.querySelectorAll('#vendedor-pipeline-tool .admin-only').forEach(el => el.style.display = 'flex');
+                 }
+            };
+
+            function renderCompetitors(competitors) {
+                const competitorTableBody = document.getElementById('competitor-table-body');
+                competitorTableBody.innerHTML = '';
+                competitors.forEach(comp => {
+                    const row = competitorTableBody.insertRow();
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-2 px-4">${comp.name}</td>
+                        <td class="py-2 px-4">${comp.strength}</td>
+                        <td class="py-2 px-4">${comp.weakness}</td>
+                        <td class="py-2 px-4">${comp.notes}</td>
+                        <td class="py-2 px-4 admin-only">
+                            <button data-id="${comp.id}" class="delete-competitor-btn text-red-500 hover:text-red-700">Excluir</button>
+                        </td>
+                    `;
+                });
+                if (isAdmin) {
+                    document.querySelectorAll('.delete-competitor-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                }
+            };
+            
+            function renderCampaign(campaignData) {
+                document.getElementById('campaign-display').innerHTML = `
+                    <h5 class="font-bold text-lg">${campaignData.title}</h5>
+                    <p class="text-sm font-medium text-stone-500 mb-2">${campaignData.duration}</p>
+                    <p class="text-stone-700 whitespace-pre-wrap">${campaignData.strategy}</p>
+                `;
+            };
+
+            function renderGoals(goalsData) {
+                document.getElementById('goals-display').innerHTML = `
+                    <div class="bg-stone-100 p-4 rounded-lg text-center">
+                        <p class="text-sm font-semibold text-stone-600">Vendas (R$)</p>
+                        <p class="text-2xl font-bold">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(goalsData.vendas || 0)}</p>
+                    </div>
+                     <div class="bg-stone-100 p-4 rounded-lg text-center">
+                        <p class="text-sm font-semibold text-stone-600">Leads Qualificados</p>
+                        <p class="text-2xl font-bold">${goalsData.leads || 0}</p>
+                    </div>
+                     <div class="bg-stone-100 p-4 rounded-lg text-center">
+                        <p class="text-sm font-semibold text-stone-600">Reativações</p>
+                        <p class="text-2xl font-bold">${goalsData.reativacoes || 0}</p>
+                    </div>
+                     <div class="bg-stone-100 p-4 rounded-lg text-center">
+                        <p class="text-sm font-semibold text-stone-600">Foco Adicional</p>
+                        <p class="text-xl font-bold">${goalsData.custom || 'N/A'}</p>
+                    </div>
+                `;
+            };
+            
+            function renderProcess(processText) {
+                document.getElementById('process-display').textContent = processText;
+                document.getElementById('process-input').value = processText;
+            };
+
+            function editFunnelStage(index, stages) {
+                const newName = prompt('Editar nome da etapa:', stages[index]);
+                if (newName && newName.trim() !== '') {
+                    stages[index] = newName.trim();
+                    setDoc(funnelDoc, { stages });
+                }
+            };
+
+            function deleteFunnelStage(index, stages) {
+                if(confirm(`Tem certeza que deseja excluir a etapa "${stages[index]}"?`)){
+                    stages.splice(index, 1);
+                    setDoc(funnelDoc, { stages });
+                }
+            };
+
+            function renderCustomFunnel(stages) {
+                const customFunnelDisplay = document.getElementById('custom-funnel-display');
+                customFunnelDisplay.innerHTML = '';
+                stages.forEach((stage, index) => {
+                    const stageEl = document.createElement('div');
+                    stageEl.className = 'flex items-center';
+                    const stagePill = document.createElement('div');
+                    stagePill.className = 'bg-primary text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2';
+                    stagePill.innerHTML = `<span>${stage}</span>`;
+                    if (isAdmin) {
+                        const editBtn = document.createElement('button');
+                        editBtn.innerHTML = '✏️';
+                        editBtn.className = 'text-xs';
+                        editBtn.onclick = () => editFunnelStage(index, stages);
+                        stagePill.appendChild(editBtn);
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.innerHTML = '🗑️';
+                        deleteBtn.className = 'text-xs';
+                        deleteBtn.onclick = () => deleteFunnelStage(index, stages);
+                        stagePill.appendChild(deleteBtn);
+                    }
+                    stageEl.appendChild(stagePill);
+                    if (index < stages.length - 1) {
+                        const arrow = document.createElement('span');
+                        arrow.className = 'text-primary font-bold text-2xl mx-2';
+                        arrow.textContent = '→';
+                        stageEl.appendChild(arrow);
+                    }
+                    customFunnelDisplay.appendChild(stageEl);
+                });
+            };
+
+            function renderSdrPlan(plan) {
+                document.getElementById('sdr-daily-plan').innerHTML = plan.map(item => `<li>${item}</li>`).join('');
+                document.getElementById('sdr-plan-input').value = plan.join('\n');
+            };
+
+            function renderVendedorPlan(plan) {
+                document.getElementById('vendedor-daily-plan').innerHTML = plan.map(item => `<li>${item}</li>`).join('');
+                document.getElementById('vendedor-plan-input').value = plan.join('\n');
+            };
+            
             function setupAccordions(containerSelector) {
                 const container = document.getElementById(containerSelector);
                 if(container) {
@@ -261,9 +538,6 @@
                     });
                 }
             }
-            
-            setupAccordions('sdr-tasks-accordion');
-            setupAccordions('vendedor-tasks-accordion');
             
             function setupTabs(containerSelector, buttonSelector, contentSelector) {
                  const tabsContainer = document.querySelector(containerSelector);
@@ -290,517 +564,219 @@
                 }
             }
 
-            setupTabs('#registro-diario', '.daily-log-tab', '.daily-log-content');
-            setupTabs('#painel-operacional', '.operational-tab', '.operational-content');
-
-            // Admin Logic
-            const adminLoginBtn = document.getElementById('admin-login-btn');
-            const adminPasswordInput = document.getElementById('admin-password');
-            const adminError = document.getElementById('admin-error');
-
-            const enableAdminMode = () => {
-                isAdmin = true;
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-                document.getElementById('admin-login-area').innerHTML = '<p class="text-green-400 text-xs">Modo Administrador Ativado.</p>';
-                renderSdrLog();
-                renderVendedorLog();
-                renderCompetitors();
-                renderDeals();
-                renderSdrPlan();
-                renderVendedorPlan();
-                renderCustomFunnel();
-            };
-            
-            adminLoginBtn.addEventListener('click', () => {
-                if (adminPasswordInput.value === ADMIN_PASSWORD) {
-                    enableAdminMode();
-                } else {
-                    adminError.classList.remove('hidden');
-                    setTimeout(() => adminError.classList.add('hidden'), 2000);
-                }
-            });
-
-            adminPasswordInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') adminLoginBtn.click();
-            });
-
-            // Daily Log Logic
-            let sdrLog = JSON.parse(localStorage.getItem('sdrDailyLog')) || [];
-            let vendedorLog = JSON.parse(localStorage.getItem('vendedorDailyLog')) || [];
-            
-            const sdrLogTableBody = document.getElementById('sdr-log-table-body');
-            const vendedorLogTableBody = document.getElementById('vendedor-log-table-body');
-
-            const renderSdrLog = () => {
-                sdrLogTableBody.innerHTML = '';
-                sdrLog.forEach((entry, index) => {
-                    const row = sdrLogTableBody.insertRow();
-                    row.className = 'border-b';
-                    row.innerHTML = `
-                        <td class="py-2 px-4">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
-                        <td class="py-2 px-4">${entry.prospeccoes}</td>
-                        <td class="py-2 px-4">${entry.nutricoes}</td>
-                        <td class="py-2 px-4">${entry.resumo}</td>
-                        <td class="py-2 px-4 admin-only">
-                            <button data-index="${index}" class="delete-sdr-log-btn text-red-500 hover:text-red-700">Excluir</button>
-                        </td>
-                    `;
-                });
-                if (isAdmin) {
-                    document.querySelectorAll('.delete-sdr-log-btn').forEach(btn => btn.parentElement.style.display = 'revert');
-                }
-            };
-
-            const renderVendedorLog = () => {
-                vendedorLogTableBody.innerHTML = '';
-                vendedorLog.forEach((entry, index) => {
-                    const row = vendedorLogTableBody.insertRow();
-                    row.className = 'border-b';
-                    row.innerHTML = `
-                        <td class="py-2 px-4">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
-                        <td class="py-2 px-4">${entry.vendas}</td>
-                        <td class="py-2 px-4">${entry.conversoes}</td>
-                        <td class="py-2 px-4">${entry.reativacoes}</td>
-                        <td class="py-2 px-4">${entry.notas}</td>
-                        <td class="py-2 px-4 admin-only">
-                             <button data-index="${index}" class="delete-vendedor-log-btn text-red-500 hover:text-red-700">Excluir</button>
-                        </td>
-                    `;
-                });
-                 if (isAdmin) {
-                    document.querySelectorAll('.delete-vendedor-log-btn').forEach(btn => btn.parentElement.style.display = 'revert');
-                }
-            };
-
-            document.getElementById('add-sdr-log-btn').addEventListener('click', () => {
+            // --- Event Listeners and Handlers ---
+            document.getElementById('add-sdr-log-btn').addEventListener('click', async () => {
                 const prospeccoes = document.getElementById('sdr-prospeccoes').value;
                 const nutricoes = document.getElementById('sdr-nutricoes').value;
                 const resumo = document.getElementById('sdr-resumo').value;
-
-                if (!prospeccoes && !nutricoes && !resumo) {
-                    alert('Preencha pelo menos um campo para registrar.');
-                    return;
-                }
-
-                sdrLog.unshift({ date: new Date().toISOString(), prospeccoes: prospeccoes || 0, nutricoes: nutricoes || 0, resumo: resumo || 'N/A' });
-                localStorage.setItem('sdrDailyLog', JSON.stringify(sdrLog));
-                renderSdrLog();
+                if (!prospeccoes && !nutricoes && !resumo) return alert('Preencha pelo menos um campo.');
+                await addDoc(sdrLogCol, {
+                    timestamp: serverTimestamp(),
+                    prospeccoes: Number(prospeccoes) || 0,
+                    nutricoes: Number(nutricoes) || 0,
+                    resumo: resumo || 'N/A'
+                });
                 document.getElementById('sdr-prospeccoes').value = '';
                 document.getElementById('sdr-nutricoes').value = '';
                 document.getElementById('sdr-resumo').value = '';
             });
-            
-            document.getElementById('add-vendedor-log-btn').addEventListener('click', () => {
+
+            document.getElementById('sdr-log-table-body').addEventListener('click', async (e) => {
+                if (e.target.classList.contains('delete-sdr-log-btn')) {
+                    const docId = e.target.dataset.id;
+                    if (confirm('Tem certeza?')) await deleteDoc(doc(sdrLogCol, docId));
+                }
+            });
+
+            document.getElementById('add-vendedor-log-btn').addEventListener('click', async () => {
                 const vendas = document.getElementById('vendedor-vendas').value;
                 const conversoes = document.getElementById('vendedor-conversoes').value;
                 const reativacoes = document.getElementById('vendedor-reativacoes').value;
                 const notas = document.getElementById('vendedor-notas').value;
-
-                if (!vendas && !conversoes && !reativacoes && !notas) {
-                    alert('Preencha pelo menos um campo para registrar.');
-                    return;
-                }
-
-                vendedorLog.unshift({ date: new Date().toISOString(), vendas: vendas || 0, conversoes: conversoes || 0, reativacoes: reativacoes || 0, notas: notas || 'N/A' });
-                localStorage.setItem('vendedorDailyLog', JSON.stringify(vendedorLog));
-                renderVendedorLog();
+                if (!vendas && !conversoes && !reativacoes && !notas) return alert('Preencha pelo menos um campo.');
+                await addDoc(vendedorLogCol, {
+                    timestamp: serverTimestamp(),
+                    vendas: Number(vendas) || 0,
+                    conversoes: Number(conversoes) || 0,
+                    reativacoes: Number(reativacoes) || 0,
+                    notas: notas || 'N/A'
+                });
                 document.getElementById('vendedor-vendas').value = '';
                 document.getElementById('vendedor-conversoes').value = '';
                 document.getElementById('vendedor-reativacoes').value = '';
                 document.getElementById('vendedor-notas').value = '';
             });
 
-            sdrLogTableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-sdr-log-btn')) {
-                    const index = e.target.dataset.index;
-                    if(confirm('Tem certeza que deseja excluir este registro?')) {
-                        sdrLog.splice(index, 1);
-                        localStorage.setItem('sdrDailyLog', JSON.stringify(sdrLog));
-                        renderSdrLog();
-                    }
-                }
-            });
-
-            vendedorLogTableBody.addEventListener('click', (e) => {
+            document.getElementById('vendedor-log-table-body').addEventListener('click', async (e) => {
                 if (e.target.classList.contains('delete-vendedor-log-btn')) {
-                    const index = e.target.dataset.index;
-                     if(confirm('Tem certeza que deseja excluir este registro?')) {
-                        vendedorLog.splice(index, 1);
-                        localStorage.setItem('vendedorDailyLog', JSON.stringify(vendedorLog));
-                        renderVendedorLog();
-                    }
+                    const docId = e.target.dataset.id;
+                    if (confirm('Tem certeza?')) await deleteDoc(doc(vendedorLogCol, docId));
                 }
             });
 
             document.getElementById('clear-sdr-log-btn').addEventListener('click', () => {
                 if(confirm('ATENÇÃO: Isso apagará TODO o histórico do SDR. Deseja continuar?')) {
-                    sdrLog = [];
-                    localStorage.removeItem('sdrDailyLog');
-                    renderSdrLog();
+                    onSnapshot(sdrLogCol, (snapshot) => snapshot.docs.forEach(doc => deleteDoc(doc.ref)), { once: true });
                 }
             });
 
             document.getElementById('clear-vendedor-log-btn').addEventListener('click', () => {
                 if(confirm('ATENÇÃO: Isso apagará TODO o histórico do Vendedor. Deseja continuar?')) {
-                    vendedorLog = [];
-                    localStorage.removeItem('vendedorDailyLog');
-                    renderVendedorLog();
+                    onSnapshot(vendedorLogCol, (snapshot) => snapshot.docs.forEach(doc => deleteDoc(doc.ref)), { once: true });
                 }
             });
 
-            // Operational Panel Logic
-            // SDR Task List
-            const taskInput = document.getElementById('new-task-input');
-            const addTaskBtn = document.getElementById('add-task-btn');
-            const taskListEl = document.getElementById('task-list');
-            let tasks = JSON.parse(localStorage.getItem('sdrDailyTasks')) || [];
-
-            const renderTasks = () => {
-                taskListEl.innerHTML = '';
-                tasks.forEach((task, index) => {
-                    const taskEl = document.createElement('div');
-                    taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
-                    const adminTag = task.createdBy === 'Admin' ? '<span class="text-xs text-accent font-bold ml-2">(Admin)</span>' : '';
-                    taskEl.innerHTML = `
-                        <div>
-                            <span>${task.text}</span>
-                            ${adminTag}
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button data-index="${index}" class="toggle-task-btn text-green-600">✓</button>
-                            <button data-index="${index}" class="delete-task-btn text-red-600">✗</button>
-                        </div>
-                    `;
-                    taskListEl.appendChild(taskEl);
-                });
-            };
-
-            addTaskBtn.addEventListener('click', () => {
+            document.getElementById('add-task-btn').addEventListener('click', async () => {
+                const taskInput = document.getElementById('new-task-input');
                 const taskText = taskInput.value.trim();
                 if (taskText) {
-                    const newTask = { text: taskText, completed: false };
-                    if (isAdmin) {
-                        newTask.createdBy = 'Admin';
-                    }
-                    tasks.unshift(newTask);
+                    const newTask = { text: taskText, completed: false, timestamp: serverTimestamp() };
+                    if (isAdmin) newTask.createdBy = 'Admin';
+                    await addDoc(tasksCol, newTask);
                     taskInput.value = '';
-                    localStorage.setItem('sdrDailyTasks', JSON.stringify(tasks));
-                    renderTasks();
                 }
             });
-            
-            taskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addTaskBtn.click();
+
+            document.getElementById('task-list').addEventListener('click', async (e) => {
+                const target = e.target;
+                const id = target.dataset.id;
+                if (target.classList.contains('toggle-task-btn')) {
+                    const isCompleted = target.dataset.completed === 'true';
+                    await updateDoc(doc(tasksCol, id), { completed: !isCompleted });
+                }
+                if (target.classList.contains('delete-task-btn')) {
+                    await deleteDoc(doc(tasksCol, id));
+                }
             });
 
-            taskListEl.addEventListener('click', (e) => {
-                const index = e.target.dataset.index;
-                if (e.target.classList.contains('toggle-task-btn')) {
-                    tasks[index].completed = !tasks[index].completed;
-                }
-                if (e.target.classList.contains('delete-task-btn')) {
-                    tasks.splice(index, 1);
-                }
-                localStorage.setItem('sdrDailyTasks', JSON.stringify(tasks));
-                renderTasks();
-            });
-
-            // Vendedor Pipeline
-            const dealInput = document.getElementById('new-deal-input');
-            const addDealBtn = document.getElementById('add-deal-btn');
-            const pipelineContainer = document.getElementById('vendedor-pipeline-tool');
-            let deals = JSON.parse(localStorage.getItem('salesPipelineDeals')) || [];
-
-            const renderDeals = () => {
-                document.querySelectorAll('.pipeline-list').forEach(list => {
-                    const title = list.querySelector('h5').outerHTML;
-                    list.innerHTML = title;
-                });
-                deals.forEach((deal, index) => {
-                    const dealEl = document.createElement('div');
-                    dealEl.className = 'p-2 bg-white rounded shadow text-sm cursor-grab';
-                    dealEl.setAttribute('draggable', true);
-                    dealEl.dataset.index = index;
-
-                    dealEl.innerHTML = `
-                        <div class="flex justify-between items-center">
-                            <p class="font-semibold flex-grow">${deal.text}</p>
-                            <div class="admin-only flex-shrink-0 ml-2 space-x-1">
-                                <button data-index="${index}" class="edit-deal-btn text-blue-600 hover:text-blue-800 p-1 text-xs">✏️</button>
-                                <button data-index="${index}" class="delete-deal-btn text-red-600 hover:text-red-800 p-1 text-xs">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                    document.querySelector(`.pipeline-list[data-stage="${deal.stage}"]`).appendChild(dealEl);
-                });
-                 addDragAndDropHandlers();
-                 if (isAdmin) {
-                    document.querySelectorAll('#vendedor-pipeline-tool .admin-only').forEach(el => el.style.display = 'flex');
-                 }
-            };
-
-            const addDragAndDropHandlers = () => {
-                const dealElements = document.querySelectorAll('.pipeline-list > div[draggable="true"]');
-                const pipelineLists = document.querySelectorAll('.pipeline-list');
-
-                dealElements.forEach(dealEl => {
-                    dealEl.addEventListener('dragstart', (e) => {
-                        if (e.target.closest('.edit-deal-btn') || e.target.closest('.delete-deal-btn')) {
-                            e.preventDefault();
-                            return;
-                        }
-                        e.dataTransfer.setData('text/plain', e.target.dataset.index);
-                        setTimeout(() => {
-                           e.target.classList.add('opacity-50');
-                        }, 0);
-                    });
-
-                    dealEl.addEventListener('dragend', (e) => {
-                        e.target.classList.remove('opacity-50');
-                    });
-                });
-
-                pipelineLists.forEach(list => {
-                    list.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        list.classList.add('drag-over');
-                    });
-                    
-                    list.addEventListener('dragleave', () => {
-                        list.classList.remove('drag-over');
-                    });
-
-                    list.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        list.classList.remove('drag-over');
-                        const dealIndex = e.dataTransfer.getData('text/plain');
-                        const targetList = e.currentTarget;
-                        
-                        if (dealIndex && targetList.classList.contains('pipeline-list')) {
-                           const newStage = targetList.dataset.stage;
-                           deals[dealIndex].stage = newStage;
-                           localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
-                           renderDeals();
-                        }
-                    });
-                });
-            };
-            
-            addDealBtn.addEventListener('click', () => {
+            document.getElementById('add-deal-btn').addEventListener('click', async () => {
+                const dealInput = document.getElementById('new-deal-input');
                 const dealText = dealInput.value.trim();
                 if(dealText) {
-                    deals.unshift({ text: dealText, stage: 'qualificado' });
+                    await addDoc(dealsCol, { text: dealText, stage: 'qualificado', timestamp: serverTimestamp() });
                     dealInput.value = '';
-                    localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
-                    renderDeals();
                 }
             });
 
-            dealInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addDealBtn.click();
-            });
-
-            pipelineContainer.addEventListener('click', (e) => {
+            document.getElementById('vendedor-pipeline-tool').addEventListener('click', async (e) => {
                 const editBtn = e.target.closest('.edit-deal-btn');
                 if (editBtn) {
-                    const index = editBtn.dataset.index;
-                    const currentText = deals[index].text;
+                    const docId = editBtn.dataset.id;
+                    const currentText = editBtn.dataset.text;
                     const newText = prompt('Editar nome do cliente/lead:', currentText);
                     if (newText && newText.trim() !== '') {
-                        deals[index].text = newText.trim();
-                        localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
-                        renderDeals();
+                        await updateDoc(doc(dealsCol, docId), { text: newText.trim() });
                     }
                 }
 
                 const deleteBtn = e.target.closest('.delete-deal-btn');
                 if (deleteBtn) {
-                    const index = deleteBtn.dataset.index;
-                    if (confirm(`Tem certeza que deseja excluir "${deals[index].text}"?`)) {
-                        deals.splice(index, 1);
-                        localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
-                        renderDeals();
+                    const docId = deleteBtn.dataset.id;
+                    const text = deleteBtn.dataset.text;
+                    if (confirm(`Tem certeza que deseja excluir "${text}"?`)) {
+                        await deleteDoc(doc(dealsCol, docId));
                     }
                 }
             });
-            
-            // Sales Calculator
-            const calcPreco = document.getElementById('calc-preco');
-            const calcDesconto = document.getElementById('calc-desconto');
-            const calcFinal = document.getElementById('calc-final');
 
+            document.getElementById('calc-preco').addEventListener('input', updateCalculator);
+            document.getElementById('calc-desconto').addEventListener('input', updateCalculator);
             function updateCalculator() {
+                const calcPreco = document.getElementById('calc-preco');
+                const calcDesconto = document.getElementById('calc-desconto');
+                const calcFinal = document.getElementById('calc-final');
                 const preco = parseFloat(calcPreco.value) || 0;
                 const desconto = parseFloat(calcDesconto.value) || 0;
                 const precoFinal = preco - (preco * (desconto / 100));
                 calcFinal.textContent = `R$ ${precoFinal.toFixed(2).replace('.',',')}`;
             }
-
-            calcPreco.addEventListener('input', updateCalculator);
-            calcDesconto.addEventListener('input', updateCalculator);
             
-             // Campaign & Goals Logic
-            const campaignDisplay = document.getElementById('campaign-display');
-            const goalsDisplay = document.getElementById('goals-display');
-            const defaultCampaign = { title: 'Nenhuma campanha ativa no momento.', duration: '', strategy: 'O gestor definirá a próxima campanha em breve.' };
-            const defaultGoals = { vendas: 0, leads: 0, reativacoes: 0, custom: 'N/A' };
-            let campaignData = JSON.parse(localStorage.getItem('salesCampaign')) || defaultCampaign;
-            let goalsData = JSON.parse(localStorage.getItem('teamGoals')) || defaultGoals;
-
-            const renderCampaign = () => {
-                campaignDisplay.innerHTML = `
-                    <h5 class="font-bold text-lg">${campaignData.title}</h5>
-                    <p class="text-sm font-medium text-stone-500 mb-2">${campaignData.duration}</p>
-                    <p class="text-stone-700 whitespace-pre-wrap">${campaignData.strategy}</p>
-                `;
-            };
-
-            const renderGoals = () => {
-                goalsDisplay.innerHTML = `
-                    <div class="bg-stone-100 p-4 rounded-lg text-center">
-                        <p class="text-sm font-semibold text-stone-600">Vendas (R$)</p>
-                        <p class="text-2xl font-bold">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(goalsData.vendas)}</p>
-                    </div>
-                     <div class="bg-stone-100 p-4 rounded-lg text-center">
-                        <p class="text-sm font-semibold text-stone-600">Leads Qualificados</p>
-                        <p class="text-2xl font-bold">${goalsData.leads}</p>
-                    </div>
-                     <div class="bg-stone-100 p-4 rounded-lg text-center">
-                        <p class="text-sm font-semibold text-stone-600">Reativações</p>
-                        <p class="text-2xl font-bold">${goalsData.reativacoes}</p>
-                    </div>
-                     <div class="bg-stone-100 p-4 rounded-lg text-center">
-                        <p class="text-sm font-semibold text-stone-600">Foco Adicional</p>
-                        <p class="text-xl font-bold">${goalsData.custom}</p>
-                    </div>
-                `;
-            };
-
-            document.getElementById('save-campaign-btn').addEventListener('click', () => {
-                campaignData = {
+            document.getElementById('save-campaign-btn').addEventListener('click', async () => {
+                const campaignData = {
                     title: document.getElementById('campaign-title').value || 'Nenhuma campanha ativa',
                     duration: document.getElementById('campaign-duration').value || '',
                     strategy: document.getElementById('campaign-strategy').value || 'Foco nas atividades diárias.'
                 };
-                localStorage.setItem('salesCampaign', JSON.stringify(campaignData));
-                renderCampaign();
-                document.getElementById('campaign-title').value = '';
-                document.getElementById('campaign-duration').value = '';
-                document.getElementById('campaign-strategy').value = '';
+                await setDoc(campaignDoc, campaignData);
                 alert('Campanha salva com sucesso!');
             });
             
-            document.getElementById('edit-campaign-btn').addEventListener('click', () => {
-                document.getElementById('campaign-title').value = campaignData.title;
-                document.getElementById('campaign-duration').value = campaignData.duration;
-                document.getElementById('campaign-strategy').value = campaignData.strategy;
-                alert('Dados da campanha atual carregados para edição.');
+            document.getElementById('edit-campaign-btn').addEventListener('click', async () => {
+                onSnapshot(campaignDoc, (doc) => {
+                    if (doc.exists()) {
+                        const data = doc.data();
+                        document.getElementById('campaign-title').value = data.title;
+                        document.getElementById('campaign-duration').value = data.duration;
+                        document.getElementById('campaign-strategy').value = data.strategy;
+                        alert('Dados da campanha atual carregados para edição.');
+                    }
+                }, { once: true });
             });
 
-            document.getElementById('delete-campaign-btn').addEventListener('click', () => {
+            document.getElementById('delete-campaign-btn').addEventListener('click', async () => {
                 if (confirm('Tem certeza que deseja excluir a campanha atual?')) {
-                    campaignData = defaultCampaign;
-                    localStorage.setItem('salesCampaign', JSON.stringify(campaignData));
-                    renderCampaign();
-                    document.getElementById('campaign-title').value = '';
-                    document.getElementById('campaign-duration').value = '';
-                    document.getElementById('campaign-strategy').value = '';
+                    await deleteDoc(campaignDoc);
                     alert('Campanha excluída.');
                 }
             });
 
-            document.getElementById('save-goals-btn').addEventListener('click', () => {
-                goalsData = {
+            document.getElementById('save-goals-btn').addEventListener('click', async () => {
+                const goalsData = {
                     vendas: parseFloat(document.getElementById('goal-vendas').value) || 0,
                     leads: parseInt(document.getElementById('goal-leads').value) || 0,
                     reativacoes: parseInt(document.getElementById('goal-reativacoes').value) || 0,
                     custom: document.getElementById('goal-custom').value || 'N/A'
                 };
-                localStorage.setItem('teamGoals', JSON.stringify(goalsData));
-                renderGoals();
+                await setDoc(goalsDoc, goalsData);
                 alert('Metas salvas com sucesso!');
             });
             
             document.getElementById('edit-goals-btn').addEventListener('click', () => {
-                 document.getElementById('goal-vendas').value = goalsData.vendas;
-                 document.getElementById('goal-leads').value = goalsData.leads;
-                 document.getElementById('goal-reativacoes').value = goalsData.reativacoes;
-                 document.getElementById('goal-custom').value = goalsData.custom;
-                 alert('Metas atuais carregadas para edição.');
+                 onSnapshot(goalsDoc, (doc) => {
+                    if (doc.exists()) {
+                        const data = doc.data();
+                        document.getElementById('goal-vendas').value = data.vendas;
+                        document.getElementById('goal-leads').value = data.leads;
+                        document.getElementById('goal-reativacoes').value = data.reativacoes;
+                        document.getElementById('goal-custom').value = data.custom;
+                        alert('Metas atuais carregadas para edição.');
+                    }
+                 }, { once: true });
             });
             
-            document.getElementById('delete-goals-btn').addEventListener('click', () => {
+            document.getElementById('delete-goals-btn').addEventListener('click', async () => {
                  if (confirm('Tem certeza que deseja excluir as metas atuais?')) {
-                    goalsData = defaultGoals;
-                    localStorage.setItem('teamGoals', JSON.stringify(goalsData));
-                    renderGoals();
-                    document.getElementById('goal-vendas').value = '';
-                    document.getElementById('goal-leads').value = '';
-                    document.getElementById('goal-reativacoes').value = '';
-                    document.getElementById('goal-custom').value = '';
+                    await deleteDoc(goalsDoc);
                     alert('Metas excluídas.');
                 }
             });
 
-             // Competitor Logic
-            let competitors = JSON.parse(localStorage.getItem('competitorLog')) || [];
-            const competitorTableBody = document.getElementById('competitor-table-body');
-
-            const renderCompetitors = () => {
-                competitorTableBody.innerHTML = '';
-                competitors.forEach((comp, index) => {
-                    const row = competitorTableBody.insertRow();
-                    row.className = 'border-b';
-                    row.innerHTML = `
-                        <td class="py-2 px-4">${comp.name}</td>
-                        <td class="py-2 px-4">${comp.strength}</td>
-                        <td class="py-2 px-4">${comp.weakness}</td>
-                        <td class="py-2 px-4">${comp.notes}</td>
-                        <td class="py-2 px-4 admin-only">
-                            <button data-index="${index}" class="delete-competitor-btn text-red-500 hover:text-red-700">Excluir</button>
-                        </td>
-                    `;
-                });
-                if (isAdmin) {
-                    document.querySelectorAll('.delete-competitor-btn').forEach(btn => btn.parentElement.style.display = 'revert');
-                }
-            };
-
-            document.getElementById('add-competitor-btn').addEventListener('click', () => {
+            document.getElementById('add-competitor-btn').addEventListener('click', async () => {
                 const name = document.getElementById('competitor-name').value;
                 const strength = document.getElementById('competitor-strength').value;
                 const weakness = document.getElementById('competitor-weakness').value;
                 const notes = document.getElementById('competitor-notes').value;
 
-                if (!name) {
-                    alert('O nome do concorrente é obrigatório.');
-                    return;
-                }
-                competitors.unshift({ name, strength, weakness, notes });
-                localStorage.setItem('competitorLog', JSON.stringify(competitors));
-                renderCompetitors();
+                if (!name) return alert('O nome do concorrente é obrigatório.');
+                
+                await addDoc(competitorsCol, { name, strength, weakness, notes, timestamp: serverTimestamp() });
+                
                 document.getElementById('competitor-name').value = '';
                 document.getElementById('competitor-strength').value = '';
                 document.getElementById('competitor-weakness').value = '';
                 document.getElementById('competitor-notes').value = '';
             });
 
-            competitorTableBody.addEventListener('click', (e) => {
+            document.getElementById('competitor-table-body').addEventListener('click', async (e) => {
                 if (e.target.classList.contains('delete-competitor-btn')) {
-                    const index = e.target.dataset.index;
-                    if (confirm('Tem certeza que deseja excluir este registro de concorrente?')) {
-                        competitors.splice(index, 1);
-                        localStorage.setItem('competitorLog', JSON.stringify(competitors));
-                        renderCompetitors();
-                    }
+                    const docId = e.target.dataset.id;
+                    if (confirm('Tem certeza?')) await deleteDoc(doc(competitorsCol, docId));
                 }
             });
             
             document.getElementById('clear-competitor-log-btn').addEventListener('click', () => {
                 if(confirm('ATENÇÃO: Isso apagará TODO o histórico de concorrentes. Deseja continuar?')) {
-                    competitors = [];
-                    localStorage.removeItem('competitorLog');
-                    renderCompetitors();
+                    onSnapshot(competitorsCol, (snapshot) => snapshot.docs.forEach(doc => deleteDoc(doc.ref)), { once: true });
                 }
             });
 
@@ -851,164 +827,53 @@
                 });
             });
 
-            // SDR Daily Plan Logic
-            const sdrPlanList = document.getElementById('sdr-daily-plan');
-            const sdrPlanInput = document.getElementById('sdr-plan-input');
-            const saveSdrPlanBtn = document.getElementById('save-sdr-plan-btn');
-            const defaultSdrPlan = [
-                "Preparar lista de leads (30+)",
-                "Pesquisar novos contatos (10)",
-                "Ligações rápidas de qualificação (10)",
-                "Follow-up com interessados (10)",
-                "Prospecção via WhatsApp (20)",
-                "Envio de catálogos/promoções (15)",
-                "Agendar reuniões para o vendedor (2-3)",
-                "Registrar tudo no CRM."
-            ];
-            let sdrPlan = JSON.parse(localStorage.getItem('sdrDailyPlan')) || defaultSdrPlan;
-
-            const renderSdrPlan = () => {
-                sdrPlanList.innerHTML = sdrPlan.map(item => `<li>${item}</li>`).join('');
-                sdrPlanInput.value = sdrPlan.join('\n');
-            };
-
-            saveSdrPlanBtn.addEventListener('click', () => {
-                const newPlan = sdrPlanInput.value.split('\n').filter(item => item.trim() !== '');
-                sdrPlan = newPlan;
-                localStorage.setItem('sdrDailyPlan', JSON.stringify(sdrPlan));
-                renderSdrPlan();
+            document.getElementById('save-sdr-plan-btn').addEventListener('click', async () => {
+                const newPlan = document.getElementById('sdr-plan-input').value.split('\n').filter(item => item.trim() !== '');
+                await setDoc(sdrPlanDoc, { plan: newPlan });
                 alert('Plano diário do SDR salvo com sucesso!');
             });
             
-            // Vendedor Daily Plan Logic
-            const vendedorPlanList = document.getElementById('vendedor-daily-plan');
-            const vendedorPlanInput = document.getElementById('vendedor-plan-input');
-            const saveVendedorPlanBtn = document.getElementById('save-vendedor-plan-btn');
-            const defaultVendedorPlan = [
-                "Analisar Leads (2-3)",
-                "Apresentações (2-3)",
-                "Propostas (2)",
-                "Follow-up (3-4)",
-                "Fechamentos (2)",
-                "Reativação (5)"
-            ];
-            let vendedorPlan = JSON.parse(localStorage.getItem('vendedorDailyPlan')) || defaultVendedorPlan;
-
-            const renderVendedorPlan = () => {
-                vendedorPlanList.innerHTML = vendedorPlan.map(item => `<li>${item}</li>`).join('');
-                vendedorPlanInput.value = vendedorPlan.join('\n');
-            };
-
-            saveVendedorPlanBtn.addEventListener('click', () => {
-                const newPlan = vendedorPlanInput.value.split('\n').filter(item => item.trim() !== '');
-                vendedorPlan = newPlan;
-                localStorage.setItem('vendedorDailyPlan', JSON.stringify(vendedorPlan));
-                renderVendedorPlan();
+            document.getElementById('save-vendedor-plan-btn').addEventListener('click', async () => {
+                const newPlan = document.getElementById('vendedor-plan-input').value.split('\n').filter(item => item.trim() !== '');
+                await setDoc(vendedorPlanDoc, { plan: newPlan });
                 alert('Plano diário do Vendedor salvo com sucesso!');
             });
-
-            // Custom Funnel Logic
-            const customFunnelDisplay = document.getElementById('custom-funnel-display');
-            const funnelStageInput = document.getElementById('funnel-stage-input');
-            const addFunnelStageBtn = document.getElementById('add-funnel-stage-btn');
-            let funnelStages = JSON.parse(localStorage.getItem('customFunnel')) || ['Prospecção', 'Qualificação', 'Apresentação', 'Negociação', 'Fechamento'];
-
-            const renderCustomFunnel = () => {
-                customFunnelDisplay.innerHTML = '';
-                funnelStages.forEach((stage, index) => {
-                    const stageEl = document.createElement('div');
-                    stageEl.className = 'flex items-center';
-                    
-                    const stagePill = document.createElement('div');
-                    stagePill.className = 'bg-primary text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2';
-                    stagePill.innerHTML = `<span>${stage}</span>`;
-                    
-                    if (isAdmin) {
-                        const editBtn = document.createElement('button');
-                        editBtn.innerHTML = '✏️';
-                        editBtn.className = 'text-xs';
-                        editBtn.onclick = () => editFunnelStage(index);
-                        stagePill.appendChild(editBtn);
-
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.innerHTML = '🗑️';
-                        deleteBtn.className = 'text-xs';
-                        deleteBtn.onclick = () => deleteFunnelStage(index);
-                        stagePill.appendChild(deleteBtn);
-                    }
-                    
-                    stageEl.appendChild(stagePill);
-
-                    if (index < funnelStages.length - 1) {
-                        const arrow = document.createElement('span');
-                        arrow.className = 'text-primary font-bold text-2xl mx-2';
-                        arrow.textContent = '→';
-                        stageEl.appendChild(arrow);
-                    }
-                    
-                    customFunnelDisplay.appendChild(stageEl);
-                });
-            };
             
-            const editFunnelStage = (index) => {
-                const newName = prompt('Editar nome da etapa:', funnelStages[index]);
-                if (newName && newName.trim() !== '') {
-                    funnelStages[index] = newName.trim();
-                    localStorage.setItem('customFunnel', JSON.stringify(funnelStages));
-                    renderCustomFunnel();
-                }
-            };
-
-            const deleteFunnelStage = (index) => {
-                if(confirm(`Tem certeza que deseja excluir a etapa "${funnelStages[index]}"?`)){
-                    funnelStages.splice(index, 1);
-                    localStorage.setItem('customFunnel', JSON.stringify(funnelStages));
-                    renderCustomFunnel();
-                }
-            };
-
-            addFunnelStageBtn.addEventListener('click', () => {
+            document.getElementById('add-funnel-stage-btn').addEventListener('click', async () => {
+                const funnelStageInput = document.getElementById('funnel-stage-input');
                 const stageName = funnelStageInput.value.trim();
                 if (stageName) {
-                    funnelStages.push(stageName);
-                    localStorage.setItem('customFunnel', JSON.stringify(funnelStages));
-                    renderCustomFunnel();
-                    funnelStageInput.value = '';
+                    onSnapshot(funnelDoc, async (doc) => {
+                        const stages = doc.exists() ? doc.data().stages : [];
+                        stages.push(stageName);
+                        await setDoc(funnelDoc, { stages });
+                        funnelStageInput.value = '';
+                    }, { once: true });
                 }
             });
 
-            // Commercial Process Logic
-            const processDisplay = document.getElementById('process-display');
-            const processInput = document.getElementById('process-input');
-            const saveProcessBtn = document.getElementById('save-process-btn');
-            let commercialProcess = localStorage.getItem('commercialProcess') || 'Nenhum processo comercial definido. O gestor pode descrever as etapas e políticas aqui.';
-
-            const renderProcess = () => {
-                processDisplay.textContent = commercialProcess;
-                processInput.value = commercialProcess;
-            };
-
-            saveProcessBtn.addEventListener('click', () => {
-                commercialProcess = processInput.value;
-                localStorage.setItem('commercialProcess', commercialProcess);
-                renderProcess();
+            document.getElementById('save-process-btn').addEventListener('click', async () => {
+                await setDoc(processDoc, { text: document.getElementById('process-input').value });
                 alert('Processo comercial salvo com sucesso!');
             });
-            
-            // Initial render
-            renderSdrLog();
-            renderVendedorLog();
-            renderTasks();
-            renderDeals();
-            renderCampaign();
-            renderGoals();
-            renderCompetitors();
-            renderSdrPlan();
-            renderVendedorPlan();
-            renderCustomFunnel();
-            renderProcess();
-        });
+
+            // Initial render calls
+            setupAccordions('sdr-tasks-accordion');
+            setupAccordions('vendedor-tasks-accordion');
+            setupTabs('#registro-diario', '.daily-log-tab', '.daily-log-content');
+            setupTabs('#painel-operacional', '.operational-tab', '.operational-content');
+            onSnapshot(sdrLogCol, (snapshot) => renderSdrLog(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(vendedorLogCol, (snapshot) => renderVendedorLog(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(tasksCol, (snapshot) => renderTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(dealsCol, (snapshot) => renderDeals(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(competitorsCol, (snapshot) => renderCompetitors(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(campaignDoc, (doc) => renderCampaign(doc.exists() ? doc.data() : defaultCampaign));
+            onSnapshot(goalsDoc, (doc) => renderGoals(doc.exists() ? doc.data() : defaultGoals));
+            onSnapshot(processDoc, (doc) => renderProcess(doc.exists() ? doc.data().text : 'Nenhum processo definido.'));
+            onSnapshot(sdrPlanDoc, (doc) => renderSdrPlan(doc.exists() ? doc.data().plan : defaultSdrPlan));
+            onSnapshot(vendedorPlanDoc, (doc) => renderVendedorPlan(doc.exists() ? doc.data().plan : defaultVendedorPlan));
+            onSnapshot(funnelDoc, (doc) => renderCustomFunnel(doc.exists() ? doc.data().stages : ['Prospecção', 'Qualificação', 'Apresentação', 'Negociação', 'Fechamento']));
+        }
     </script>
 </body>
 </html>
-�
