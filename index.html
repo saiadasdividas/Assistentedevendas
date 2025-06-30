@@ -5,455 +5,244 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plataforma de Vendas e Gestão - Embalagens Conceito</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#78350f', // amber-900
+                        accent: '#f59e0b', // amber-500
+                    }
+                }
+            }
+        };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 450px;
-            }
-        }
-        .tab-button.active {
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; height: 350px; }
+        @media (min-width: 768px) { .chart-container { height: 450px; } }
+        .admin-only { display: none; }
+        .task-item.completed { text-decoration: line-through; opacity: 0.6; }
+        .pipeline-list.drag-over { background-color: #fef3c7; border: 2px dashed #f59e0b; }
+        .tab-button.active, .role-view-btn.active {
             border-color: #78350f;
             color: #78350f;
             font-weight: 600;
-        }
-        .admin-only {
-            display: none;
-        }
-        .task-item.completed {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-        .pipeline-list.drag-over {
-            background-color: #f5f5f4; /* bg-stone-200 */
-            border: 2px dashed #d6d3d1; /* border-stone-300 */
+            background-color: #fefce8;
         }
     </style>
 </head>
-<body class="bg-stone-50 text-stone-800">
+<body class="bg-stone-100 text-stone-800">
 
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                     <span class="text-xl font-bold text-amber-900">Embalagens Conceito</span>
-                </div>
-                <nav class="hidden md:flex md:space-x-6 lg:space-x-8">
-                    <a href="#campanhas" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Campanhas</a>
-                    <a href="#registro-diario" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Registro Diário</a>
-                    <a href="#painel-operacional" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Painel Operacional</a>
-                    <a href="#funcoes" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funções</a>
-                    <a href="#funil" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funil</a>
-                    <a href="#recursos" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Recursos</a>
-                </nav>
-            </div>
+    <header class="bg-white/80 backdrop-blur sticky top-0 z-50 shadow">
+        <div class="max-w-7xl mx-auto flex items-center justify-between p-4">
+            <h1 class="text-2xl font-bold text-primary">Embalagens Conceito</h1>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#campanhas" class="text-stone-600 hover:text-primary transition">Campanhas</a>
+                <a href="#processo-comercial" class="text-stone-600 hover:text-primary transition">Processo</a>
+                <a href="#registro-diario" class="text-stone-600 hover:text-primary transition">Registros</a>
+                <a href="#painel-operacional" class="text-stone-600 hover:text-primary transition">Operacional</a>
+                <a href="#funcoes" class="text-stone-600 hover:text-primary transition">Funções</a>
+                <a href="#recursos" class="text-stone-600 hover:text-primary transition">Recursos</a>
+            </nav>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        <section id="missao" class="text-center mb-20 scroll-mt-20">
-            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-tight">Plataforma de Vendas e Gestão</h1>
-            <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Sua ferramenta diária para registro de atividades, acompanhamento de metas e consulta de materiais na Embalagens Conceito.</p>
-        </section>
-        
-        <section id="campanhas" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Campanhas e Metas Ativas</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Foco da equipe para a semana/mês. Consulte aqui as estratégias e metas vigentes.</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200 space-y-8">
-                <div>
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">📢 Campanha Atual</h3>
-                    <div id="campaign-display" class="p-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg">
-                        <!-- Campaign content will be loaded here -->
-                    </div>
-                    <div id="admin-campaign-form" class="admin-only mt-4 p-4 border-t border-stone-200">
-                        <h4 class="font-bold mb-2">Definir Nova Campanha (Admin)</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <input type="text" id="campaign-title" placeholder="Título da Campanha" class="p-2 border rounded-lg">
-                             <input type="text" id="campaign-duration" placeholder="Duração (ex: 01/07 a 07/07)" class="p-2 border rounded-lg">
-                        </div>
-                        <textarea id="campaign-strategy" placeholder="Descreva a estratégia, regras e foco da campanha..." rows="3" class="w-full mt-4 p-2 border rounded-lg"></textarea>
-                        <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                            <button id="save-campaign-btn" class="flex-1 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Campanha</button>
-                            <button id="edit-campaign-btn" class="flex-1 bg-stone-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-stone-600">Editar Atual</button>
-                            <button id="delete-campaign-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600">Excluir</button>
-                        </div>
-                    </div>
-                </div>
-                 <div>
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">🎯 Metas da Equipe</h3>
-                    <div id="goals-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                       <!-- Goals content will be loaded here -->
-                    </div>
-                     <div id="admin-goals-form" class="admin-only mt-4 p-4 border-t border-stone-200">
-                        <h4 class="font-bold mb-2">Definir Metas da Equipe (Admin)</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                             <input type="number" id="goal-vendas" placeholder="Meta de Vendas (R$)" class="p-2 border rounded-lg">
-                             <input type="number" id="goal-leads" placeholder="Meta Leads Qualificados" class="p-2 border rounded-lg">
-                             <input type="number" id="goal-reativacoes" placeholder="Meta Reativações" class="p-2 border rounded-lg">
-                             <input type="text" id="goal-custom" placeholder="Outra Meta (ex: 10 Novos Clientes)" class="p-2 border rounded-lg">
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-2 mt-4">
-                            <button id="save-goals-btn" class="flex-1 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Metas</button>
-                            <button id="edit-goals-btn" class="flex-1 bg-stone-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-stone-600">Editar Atuais</button>
-                            <button id="delete-goals-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600">Excluir</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-16">
+        <section id="missao" class="text-center space-y-4">
+            <h2 class="text-4xl font-bold text-primary">Plataforma de Vendas e Gestão</h2>
+            <p class="text-lg text-stone-600 max-w-3xl mx-auto">Sua ferramenta diária para registro de atividades, acompanhamento de metas e consulta de materiais na Embalagens Conceito.</p>
         </section>
 
-        <section id="registro-diario" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Painel de Registros Diários</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Registre suas atividades e resultados diários para uma gestão eficiente. Os dados são salvos localmente no seu navegador.</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                <div class="border-b border-stone-200 mb-6">
-                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                        <button class="tab-button daily-log-tab active" data-target="sdr-log-tool">📝 Registro SDR</button>
-                        <button class="tab-button daily-log-tab" data-target="vendedor-log-tool">📊 Registro Vendedor</button>
-                    </nav>
-                </div>
-                
-                <div id="sdr-log-tool" class="daily-log-content">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-amber-900">Registro de Atividades do SDR</h3>
-                        <button id="clear-sdr-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico SDR</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <input type="number" id="sdr-prospeccoes" placeholder="Nº Prospecções" class="p-2 border rounded-lg">
-                        <input type="number" id="sdr-nutricoes" placeholder="Nº Leads Nutridos" class="p-2 border rounded-lg">
-                    </div>
-                    <textarea id="sdr-resumo" placeholder="Resumo das atividades e insights do dia..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
-                    <button id="add-sdr-log-btn" class="w-full bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Registrar Atividades do Dia</button>
-                    
-                    <hr class="my-6">
-                    <h4 class="text-lg font-bold mb-4">Histórico de Atividades - SDR</h4>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white text-sm">
-                            <thead class="bg-stone-100">
-                                <tr>
-                                    <th class="py-2 px-4 text-left">Data</th>
-                                    <th class="py-2 px-4 text-left">Prospecções</th>
-                                    <th class="py-2 px-4 text-left">Nutridos</th>
-                                    <th class="py-2 px-4 text-left">Resumo</th>
-                                    <th class="py-2 px-4 text-left admin-only">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sdr-log-table-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="vendedor-log-tool" class="daily-log-content hidden">
-                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-amber-900">Registro de Resultados do Vendedor</h3>
-                        <button id="clear-vendedor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico Vendedor</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <input type="number" id="vendedor-vendas" placeholder="Nº Vendas Fechadas" class="p-2 border rounded-lg">
-                        <input type="number" id="vendedor-conversoes" placeholder="Nº Leads Convertidos" class="p-2 border rounded-lg">
-                        <input type="number" id="vendedor-reativacoes" placeholder="Nº Clientes Reativados" class="p-2 border rounded-lg">
-                    </div>
-                    <textarea id="vendedor-notas" placeholder="Notas importantes, vendas chave, feedbacks de clientes..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
-                    <button id="add-vendedor-log-btn" class="w-full bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Registrar Resultados do Dia</button>
-
-                    <hr class="my-6">
-                    <h4 class="text-lg font-bold mb-4">Histórico de Resultados - Vendedor</h4>
-                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white text-sm">
-                            <thead class="bg-stone-100">
-                                <tr>
-                                    <th class="py-2 px-4 text-left">Data</th>
-                                    <th class="py-2 px-4 text-left">Vendas</th>
-                                    <th class="py-2 px-4 text-left">Conversões</th>
-                                    <th class="py-2 px-4 text-left">Reativações</th>
-                                    <th class="py-2 px-4 text-left">Notas</th>
-                                    <th class="py-2 px-4 text-left admin-only">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="vendedor-log-table-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section id="painel-operacional" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Painel Operacional Diário</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Organize suas tarefas, pipeline de clientes e faça cálculos rápidos aqui. Os dados são salvos automaticamente.</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                <div class="border-b border-stone-200 mb-6">
-                    <nav class="-mb-px flex flex-wrap space-x-6" aria-label="Tabs">
-                        <button class="tab-button operational-tab active" data-target="sdr-task-tool">📋 Tarefas do SDR</button>
-                        <button class="tab-button operational-tab" data-target="vendedor-pipeline-tool">🗂️ Pipeline do Vendedor</button>
-                        <button class="tab-button operational-tab" data-target="calculadora-tool">🧮 Calculadora de Vendas</button>
-                        <button class="tab-button operational-tab" data-target="competitor-tool">📡 Registro de Concorrentes</button>
-                    </nav>
-                </div>
-
-                <div id="sdr-task-tool" class="operational-content">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">Lista de Tarefas do Dia (SDR)</h3>
-                    <div class="flex gap-4 mb-4">
-                        <input type="text" id="new-task-input" placeholder="Adicionar nova tarefa..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
-                        <button id="add-task-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar</button>
-                    </div>
-                    <div id="task-list" class="space-y-2"></div>
-                </div>
-                
-                <div id="vendedor-pipeline-tool" class="operational-content hidden">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">Pipeline de Vendas (Kanban)</h3>
-                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="qualificado">
-                            <h4 class="font-bold text-center mb-2 pointer-events-none">Qualificado</h4>
-                        </div>
-                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="proposta">
-                            <h4 class="font-bold text-center mb-2 pointer-events-none">Proposta</h4>
-                        </div>
-                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="negociacao">
-                             <h4 class="font-bold text-center mb-2 pointer-events-none">Negociação</h4>
-                        </div>
-                        <div class="bg-green-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="fechado">
-                            <h4 class="font-bold text-green-800 text-center mb-2 pointer-events-none">Fechado</h4>
-                        </div>
-                        <div class="bg-red-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="perdido">
-                            <h4 class="font-bold text-red-800 text-center mb-2 pointer-events-none">Perdido</h4>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex gap-4">
-                         <input type="text" id="new-deal-input" placeholder="Nome do novo cliente/lead..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
-                        <button id="add-deal-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar ao Pipeline</button>
-                    </div>
-                </div>
-
-                <div id="calculadora-tool" class="operational-content hidden">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">Calculadora Rápida de Vendas</h3>
-                    <div id="sales-calculator" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div class="space-y-4">
-                             <div>
-                                <label for="calc-preco" class="font-semibold">Preço Original (R$)</label>
-                                <input type="number" id="calc-preco" placeholder="100,00" class="w-full mt-1 p-2 border rounded-lg">
-                            </div>
-                            <div>
-                                <label for="calc-desconto" class="font-semibold">Desconto (%)</label>
-                                <input type="number" id="calc-desconto" placeholder="10" class="w-full mt-1 p-2 border rounded-lg">
-                            </div>
-                        </div>
-                        <div class="p-4 bg-stone-100 rounded-lg flex flex-col justify-center">
-                            <div class="text-center">
-                                <p class="text-stone-600">Preço Final:</p>
-                                <p id="calc-final" class="text-3xl font-bold text-amber-900">R$ 0,00</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="competitor-tool" class="operational-content hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-amber-900">Registro de Inteligência Competitiva</h3>
-                        <button id="clear-competitor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <input type="text" id="competitor-name" placeholder="Nome do Concorrente" class="p-2 border rounded-lg">
-                        <input type="text" id="competitor-strength" placeholder="Ponto Forte" class="p-2 border rounded-lg">
-                        <input type="text" id="competitor-weakness" placeholder="Ponto Fraco" class="p-2 border rounded-lg">
-                    </div>
-                    <textarea id="competitor-notes" placeholder="Outras observações, preços, estratégias..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
-                    <button id="add-competitor-btn" class="w-full bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar Concorrente</button>
-                    
-                    <hr class="my-6">
-                    <h4 class="text-lg font-bold mb-4">Concorrentes Mapeados</h4>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white text-sm">
-                            <thead class="bg-stone-100">
-                                <tr>
-                                    <th class="py-2 px-4 text-left">Concorrente</th>
-                                    <th class="py-2 px-4 text-left">Ponto Forte</th>
-                                    <th class="py-2 px-4 text-left">Ponto Fraco</th>
-                                    <th class="py-2 px-4 text-left">Observações</th>
-                                    <th class="py-2 px-4 text-left admin-only">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="competitor-table-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="funcoes" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">As Funções: SDR vs. Vendedor</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Cada papel é fundamental para o nosso sucesso. Entender claramente as responsabilidades de cada um é o primeiro passo para uma colaboração eficiente.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                    <h3 class="text-2xl font-bold text-amber-900">SDR (Sales Development Rep)</h3>
-                    <p class="mt-2 text-stone-600 font-medium">O pré-vendedor focado em prospecção e qualificação de leads.</p>
-                    <div id="sdr-tasks-accordion" class="mt-4 space-y-2">
-                        <div class="accordion-item">
-                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                Principais Responsabilidades
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                            <div class="accordion-content hidden p-3">
-                                <ul class="list-disc list-inside text-stone-600 space-y-1">
-                                    <li>Prospecção Ativa: Identificar e contatar prospects.</li>
-                                    <li>Primeiro Contato: Despertar interesse e criar relacionamento.</li>
-                                    <li>Gestão de CRM: Manter dados e interações atualizadas.</li>
-                                    <li>Follow-up: Nutrir leads até estarem prontos.</li>
-                                    <li>Qualificar clientes para o vendedor.</li>
-                                </ul>
-                            </div>
-                        </div>
-                         <div class="accordion-item">
-                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                Plano Diário de Atividades (Metas)
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                            <div class="accordion-content hidden p-3">
-                                <ul class="list-disc list-inside text-stone-600 space-y-1">
-                                    <li>Preparar lista de leads (30+).</li>
-                                    <li>Pesquisar novos contatos (10).</li>
-                                    <li>Ligações rápidas de qualificação (10).</li>
-                                    <li>Follow-up com interessados (10).</li>
-                                    <li>Prospecção via WhatsApp (20).</li>
-                                    <li>Envio de catálogos/promoções (15).</li>
-                                    <li>Agendar reuniões para o vendedor (2-3).</li>
-                                    <li>Registrar tudo no CRM.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                    <h3 class="text-2xl font-bold text-amber-900">Vendedor (Fechador)</h3>
-                    <p class="mt-2 text-stone-600 font-medium">Pega os clientes qualificados pelo SDR e fecha a venda.</p>
-                     <div id="vendedor-tasks-accordion" class="mt-4 space-y-2">
-                        <div class="accordion-item">
-                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                Principais Responsabilidades
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                            <div class="accordion-content hidden p-3">
-                                <ul class="list-disc list-inside text-stone-600 space-y-1">
-                                    <li>Apresentar produtos detalhadamente.</li>
-                                    <li>Elaborar propostas personalizadas.</li>
-                                    <li>Negociar preços e condições comerciais.</li>
-                                    <li>Fechar a venda e emitir o pedido.</li>
-                                    <li>Cuidar do pós-venda para garantir satisfação.</li>
-                                </ul>
-                            </div>
-                        </div>
-                         <div class="accordion-item">
-                            <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
-                                Plano Diário de Atividades (Metas)
-                                <span class="accordion-icon transform rotate-0 transition-transform text-amber-900">▼</span>
-                            </button>
-                            <div class="accordion-content hidden p-3">
-                                <ul class="list-disc list-inside text-stone-600 space-y-1">
-                                    <li>Analisar leads qualificados (2-3).</li>
-                                    <li>Reuniões/apresentações de produto (2-3).</li>
-                                    <li>Elaborar propostas personalizadas (2).</li>
-                                    <li>Follow-up de propostas (3-4).</li>
-                                    <li>Reuniões de fechamento (Meta: 2/dia).</li>
-                                    <li>Pós-venda e reativação (5).</li>
-                                    <li>Alinhamento rápido com SDR (15 min).</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="funil" class="mb-20 scroll-mt-20">
-             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">O Funil de Vendas Interativo</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Esta é a visualização das nossas metas semanais. Passe o mouse sobre cada etapa para ver os detalhes e entender as taxas de conversão esperadas.</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                <div class="chart-container">
-                    <canvas id="salesFunnelChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <section id="recursos" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Biblioteca de Recursos</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Aprofunde seus conhecimentos com vídeos e materiais selecionados para o seu desenvolvimento contínuo.</p>
-            </div>
-             <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                <h3 class="text-xl font-bold text-amber-900 mb-4">Vídeos Recomendados</h3>
-                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <a href="https://www.youtube.com/watch?v=TNcRr1vU_yc" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">O Melhor Treinamento de Vendas do Brasil</p>
-                         <p class="text-sm text-stone-500">ANDRÉ ORTIZ ENSINA COMO TER SUCESSO EM VENDAS !</p>
-                     </a>
-                     <a href="https://www.youtube.com/watch?v=18XdUKtjdpQ" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">Curso de Vendas Completo - 20 Módulos</p>
-                         <p class="text-sm text-stone-500">Brian Tracy</p>
-                     </a>
-                      <a href="https://www.youtube.com/watch?v=bJHh8cS7wW4" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">Aula 1 - SPIN Selling 2025</p>
-                         <p class="text-sm text-stone-500">Guilerme Miranda</p>
-                     </a>
-                      <a href="https://www.youtube.com/watch?v=JYHfGVCKtLE" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">Aula 2 - Perguntas de Situação</p>
-                         <p class="text-sm text-stone-500">Guilerme Miranda</p>
-                     </a>
-                      <a href="https://www.youtube.com/watch?v=XQIdFxHuuFc" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">Aula 3 - Perguntas de Problema</p>
-                         <p class="text-sm text-stone-500">Guilerme Miranda</p>
-                     </a>
-                    <a href="https://www.youtube.com/watch?v=I0OU1AAul7M" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">Aula 4 - Perguntas de Implicação</p>
-                         <p class="text-sm text-stone-500">Guilerme Miranda</p>
-                     </a>
-                    <a href="https://www.youtube.com/watch?v=kTkK3FJdJM4" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
-                         <p class="font-semibold">Aula 5 - Perguntas de Necessidade de Solução</p>
-                         <p class="text-sm text-stone-500">Guilerme Miranda</p>
-                     </a>
-                 </div>
-            </div>
-        </section>
-        
-    </main>
-
-    <footer class="bg-stone-800 text-white">
-        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
-            <p>© 2024 Embalagens Conceito. Todos os direitos reservados.</p>
-            <div id="admin-login-area" class="mt-4">
-                <div class="flex justify-center items-center gap-2">
-                    <input type="password" id="admin-password" placeholder="Senha do Admin" class="bg-stone-700 text-white p-1 rounded text-xs">
-                    <button id="admin-login-btn" class="bg-amber-800 text-white font-semibold py-1 px-3 rounded-lg hover:bg-amber-900 text-xs">Acessar Admin</button>
-                </div>
-                <p id="admin-error" class="text-red-400 text-xs mt-1 hidden">Senha incorreta.</p>
+        <div class="bg-white p-3 rounded-2xl shadow text-center">
+            <p class="text-sm font-semibold mb-2 text-primary">Selecione sua Visão:</p>
+            <div class="flex-shrink-0 border border-stone-200 rounded-lg p-1 inline-flex">
+                <button class="role-view-btn px-4 py-2 text-sm rounded-md" data-role-view="sdr">Visão SDR</button>
+                <button class="role-view-btn px-4 py-2 text-sm rounded-md" data-role-view="vendedor">Visão Vendedor</button>
+                <button class="role-view-btn active px-4 py-2 text-sm rounded-md" data-role-view="all">Visão Completa</button>
             </div>
         </div>
+
+        <section id="campanhas" class="space-y-6 scroll-mt-20" data-role="all">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-semibold text-primary">Campanhas e Metas Ativas</h3>
+                <p class="text-stone-600">Foco da equipe para a semana/mês. Consulte aqui as estratégias e metas vigentes.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow space-y-8">
+                <div>
+                    <h4 class="text-xl font-bold text-accent">📢 Campanha Atual</h4>
+                    <div id="campaign-display" class="mt-4 p-4 bg-accent/10 rounded-lg border-l-4 border-accent"></div>
+                    <div id="admin-campaign-form" class="admin-only mt-4 pt-4 border-t space-y-2">
+                        <h5 class="font-bold">Definir Campanha (Admin)</h5>
+                        <input id="campaign-title" type="text" placeholder="Título da Campanha" class="w-full p-2 border rounded-lg" />
+                        <input id="campaign-duration" type="text" placeholder="Duração (ex: 01/07 a 07/07)" class="w-full p-2 border rounded-lg" />
+                        <textarea id="campaign-strategy" rows="3" placeholder="Descrição da estratégia" class="w-full p-2 border rounded-lg"></textarea>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                            <button id="save-campaign-btn" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
+                            <button id="edit-campaign-btn" class="flex-1 bg-stone-500 text-white py-2 rounded-lg hover:bg-stone-600">Editar</button>
+                            <button id="delete-campaign-btn" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Excluir</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-accent">🎯 Metas da Equipe</h4>
+                    <div id="goals-display" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                    <div id="admin-goals-form" class="admin-only mt-4 pt-4 border-t space-y-2">
+                        <h5 class="font-bold">Definir Metas (Admin)</h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <input id="goal-vendas" type="number" placeholder="Meta Vendas (R$)" class="w-full p-2 border rounded-lg" />
+                            <input id="goal-leads" type="number" placeholder="Meta Leads" class="w-full p-2 border rounded-lg" />
+                            <input id="goal-reativacoes" type="number" placeholder="Meta Reativações" class="w-full p-2 border rounded-lg" />
+                            <input id="goal-custom" type="text" placeholder="Outra Meta" class="w-full p-2 border rounded-lg" />
+                        </div>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                            <button id="save-goals-btn" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
+                            <button id="edit-goals-btn" class="flex-1 bg-stone-500 text-white py-2 rounded-lg hover:bg-stone-600">Editar</button>
+                            <button id="delete-goals-btn" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Excluir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="processo-comercial" class="space-y-6 scroll-mt-20" data-role="all">
+             <div class="text-center mb-8">
+                <h3 class="text-3xl font-semibold text-primary">Processo Comercial e Funil de Vendas</h3>
+                <p class="text-stone-600">O guia visual do nosso processo de vendas, da prospecção ao fechamento.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow space-y-8">
+                <div>
+                    <h4 class="text-xl font-bold text-accent">📜 Descrição do Processo Comercial</h4>
+                    <div id="process-display" class="mt-4 p-4 bg-stone-50 rounded-lg text-stone-700 whitespace-pre-wrap"></div>
+                    <div id="admin-process-form" class="admin-only mt-4 pt-4 border-t space-y-2">
+                        <h5 class="font-bold">Editar Processo (Admin)</h5>
+                        <textarea id="process-input" rows="5" placeholder="Descreva o processo comercial da empresa aqui..." class="w-full p-2 border rounded-lg"></textarea>
+                        <button id="save-process-btn" class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90">Salvar Processo</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-accent">🚀 Funil de Vendas Dinâmico</h4>
+                    <div id="custom-funnel-display" class="mt-4 flex flex-wrap items-center justify-center gap-2 p-4 bg-stone-50 rounded-lg"></div>
+                     <div id="admin-funnel-form" class="admin-only mt-4 pt-4 border-t space-y-2">
+                        <h5 class="font-bold">Construir Funil (Admin)</h5>
+                        <div class="flex items-center gap-2">
+                            <input id="funnel-stage-input" type="text" placeholder="Nome da nova etapa" class="flex-grow p-2 border rounded-lg" />
+                            <button id="add-funnel-stage-btn" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90">Adicionar Etapa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="registro-diario" class="bg-white p-6 rounded-2xl shadow space-y-6 scroll-mt-20" data-role="all">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <h3 class="text-2xl font-semibold text-primary">Painel de Registros Diários</h3>
+                <div class="tabs flex-shrink-0 border border-stone-200 rounded-lg p-1">
+                    <button class="tab-button daily-log-tab active px-4 py-2 text-sm rounded-md" data-target="sdr-log-tool" data-role-tab="sdr">📝 SDR</button>
+                    <button class="tab-button daily-log-tab px-4 py-2 text-sm rounded-md" data-target="vendedor-log-tool" data-role-tab="vendedor">📊 Vendedor</button>
+                </div>
+            </div>
+            <div id="sdr-log-tool" class="daily-log-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-bold text-amber-900">Registro de Atividades do SDR</h4>
+                    <button id="clear-sdr-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <input type="number" id="sdr-prospeccoes" placeholder="Nº Prospecções" class="p-2 border rounded-lg">
+                    <input type="number" id="sdr-nutricoes" placeholder="Nº Leads Nutridos" class="p-2 border rounded-lg">
+                </div>
+                <textarea id="sdr-resumo" placeholder="Resumo das atividades e insights do dia..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
+                <button id="add-sdr-log-btn" class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90">Registrar Atividades</button>
+                <hr class="my-6"><h4 class="text-lg font-bold mb-4">Histórico - SDR</h4>
+                <div class="overflow-x-auto"><table class="min-w-full bg-white text-sm"><thead class="bg-stone-100"><tr><th class="py-2 px-4 text-left">Data</th><th class="py-2 px-4 text-left">Prospecções</th><th class="py-2 px-4 text-left">Nutridos</th><th class="py-2 px-4 text-left">Resumo</th><th class="py-2 px-4 text-left admin-only">Ações</th></tr></thead><tbody id="sdr-log-table-body"></tbody></table></div>
+            </div>
+            <div id="vendedor-log-tool" class="daily-log-content hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-bold text-amber-900">Registro de Resultados do Vendedor</h4>
+                    <button id="clear-vendedor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <input type="number" id="vendedor-vendas" placeholder="Nº Vendas Fechadas" class="p-2 border rounded-lg">
+                    <input type="number" id="vendedor-conversoes" placeholder="Nº Leads Convertidos" class="p-2 border rounded-lg">
+                    <input type="number" id="vendedor-reativacoes" placeholder="Nº Clientes Reativados" class="p-2 border rounded-lg">
+                </div>
+                <textarea id="vendedor-notas" placeholder="Notas importantes, vendas chave..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea>
+                <button id="add-vendedor-log-btn" class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90">Registrar Resultados</button>
+                <hr class="my-6"><h4 class="text-lg font-bold mb-4">Histórico - Vendedor</h4>
+                <div class="overflow-x-auto"><table class="min-w-full bg-white text-sm"><thead class="bg-stone-100"><tr><th class="py-2 px-4 text-left">Data</th><th class="py-2 px-4 text-left">Vendas</th><th class="py-2 px-4 text-left">Conversões</th><th class="py-2 px-4 text-left">Reativações</th><th class="py-2 px-4 text-left">Notas</th><th class="py-2 px-4 text-left admin-only">Ações</th></tr></thead><tbody id="vendedor-log-table-body"></tbody></table></div>
+            </div>
+        </section>
+
+        <section id="painel-operacional" class="space-y-6 scroll-mt-20" data-role="all">
+            <div class="text-center">
+                <h3 class="text-3xl font-semibold text-primary">Painel Operacional Diário</h3>
+                <p class="text-stone-600">Tarefas, pipeline, calculadora e inteligência competitiva.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow space-y-4">
+                <div class="tabs border-b border-stone-200">
+                    <nav class="-mb-px flex flex-wrap space-x-2" aria-label="Tabs">
+                        <button class="tab-button operational-tab active px-3 py-2 text-sm border-b-2" data-target="sdr-task-tool" data-role-tab="sdr">📋 Tarefas</button>
+                        <button class="tab-button operational-tab px-3 py-2 text-sm border-b-2" data-target="vendedor-pipeline-tool" data-role-tab="vendedor">🗂️ Pipeline</button>
+                        <button class="tab-button operational-tab px-3 py-2 text-sm border-b-2" data-target="calculadora-tool" data-role-tab="vendedor">🧮 Calculadora</button>
+                        <button class="tab-button operational-tab px-3 py-2 text-sm border-b-2" data-target="competitor-tool" data-role-tab="all">📡 Concorrentes</button>
+                    </nav>
+                </div>
+                <div id="sdr-task-tool" class="operational-content">
+                    <h4 class="text-lg font-bold text-amber-900 mb-4">Lista de Tarefas do Dia (SDR)</h4>
+                    <div class="flex gap-4 mb-4"><input type="text" id="new-task-input" placeholder="Adicionar nova tarefa..." class="flex-grow p-2 border rounded-lg"><button id="add-task-btn" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90">Adicionar</button></div>
+                    <div id="task-list" class="space-y-2"></div>
+                </div>
+                <div id="vendedor-pipeline-tool" class="operational-content hidden">
+                    <h4 class="text-lg font-bold text-amber-900 mb-4">Pipeline de Vendas (Kanban)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4"><div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="qualificado"><h5 class="font-bold text-center mb-2 pointer-events-none">Qualificado</h5></div><div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="proposta"><h5 class="font-bold text-center mb-2 pointer-events-none">Proposta</h5></div><div class="bg-stone-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="negociacao"><h5 class="font-bold text-center mb-2 pointer-events-none">Negociação</h5></div><div class="bg-green-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="fechado"><h5 class="font-bold text-green-800 text-center mb-2 pointer-events-none">Fechado</h5></div><div class="bg-red-100 p-4 rounded-lg min-h-[200px] pipeline-list" data-stage="perdido"><h5 class="font-bold text-red-800 text-center mb-2 pointer-events-none">Perdido</h5></div></div>
+                    <div class="mt-4 flex gap-4"><input type="text" id="new-deal-input" placeholder="Nome do novo cliente/lead..." class="flex-grow p-2 border rounded-lg"><button id="add-deal-btn" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90">Adicionar</button></div>
+                </div>
+                <div id="calculadora-tool" class="operational-content hidden">
+                    <h4 class="text-lg font-bold text-amber-900 mb-4">Calculadora Rápida de Vendas</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4"><div class="space-y-4"><div><label for="calc-preco" class="font-semibold">Preço Original (R$)</label><input type="number" id="calc-preco" placeholder="100,00" class="w-full mt-1 p-2 border rounded-lg"></div><div><label for="calc-desconto" class="font-semibold">Desconto (%)</label><input type="number" id="calc-desconto" placeholder="10" class="w-full mt-1 p-2 border rounded-lg"></div></div><div class="p-4 bg-stone-100 rounded-lg flex flex-col justify-center"><div class="text-center"><p class="text-stone-600">Preço Final:</p><p id="calc-final" class="text-3xl font-bold text-primary">R$ 0,00</p></div></div></div>
+                </div>
+                <div id="competitor-tool" class="operational-content hidden">
+                    <div class="flex justify-between items-center mb-4"><h4 class="text-lg font-bold text-amber-900">Registro de Inteligência Competitiva</h4><button id="clear-competitor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600">Limpar</button></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"><input type="text" id="competitor-name" placeholder="Nome do Concorrente" class="p-2 border rounded-lg"><input type="text" id="competitor-strength" placeholder="Ponto Forte" class="p-2 border rounded-lg"><input type="text" id="competitor-weakness" placeholder="Ponto Fraco" class="p-2 border rounded-lg"></div>
+                    <textarea id="competitor-notes" placeholder="Outras observações, preços..." rows="3" class="w-full p-2 border rounded-lg mb-4"></textarea><button id="add-competitor-btn" class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90">Adicionar</button>
+                    <hr class="my-6"><h4 class="text-lg font-bold mb-4">Concorrentes Mapeados</h4>
+                    <div class="overflow-x-auto"><table class="min-w-full bg-white text-sm"><thead class="bg-stone-100"><tr><th class="py-2 px-4 text-left">Concorrente</th><th class="py-2 px-4 text-left">Ponto Forte</th><th class="py-2 px-4 text-left">Ponto Fraco</th><th class="py-2 px-4 text-left">Observações</th><th class="py-2 px-4 text-left admin-only">Ações</th></tr></thead><tbody id="competitor-table-body"></tbody></table></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="funcoes" class="scroll-mt-20" data-role="all">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow space-y-4" data-role-column="sdr"><h3 class="text-2xl font-semibold text-primary">SDR (Sales Development Rep)</h3><p class="text-stone-600">O pré-vendedor focado em prospecção e qualificação de leads.</p><div id="sdr-tasks-accordion" class="space-y-2"><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Principais Responsabilidades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Prospecção Ativa</li><li>Primeiro Contato</li><li>Gestão de CRM</li><li>Follow-up</li><li>Qualificar clientes</li></ul></div></div><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Plano Diário de Atividades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul id="sdr-daily-plan" class="list-disc list-inside text-stone-600 space-y-1"></ul><div class="admin-only mt-4 pt-4 border-t"><textarea id="sdr-plan-input" rows="8" class="w-full p-2 border rounded-lg text-sm"></textarea><button id="save-sdr-plan-btn" class="mt-2 bg-primary text-white text-xs font-semibold py-1 px-3 rounded-lg">Salvar Plano</button></div></div></div></div></div>
+                <div class="bg-white p-6 rounded-2xl shadow space-y-4" data-role-column="vendedor"><h3 class="text-2xl font-semibold text-primary">Vendedor (Fechador)</h3><p class="text-stone-600">Pega os clientes qualificados e fecha a venda.</p><div id="vendedor-tasks-accordion" class="space-y-2"><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Principais Responsabilidades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Apresentar produtos</li><li>Elaborar propostas</li><li>Negociar preços</li><li>Fechar a venda</li><li>Pós-venda</li></ul></div></div><div class="accordion-item"><button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200">Plano Diário de Atividades<span class="accordion-icon transform rotate-0 transition-transform text-primary">▼</span></button><div class="accordion-content hidden p-3"><ul class="list-disc list-inside text-stone-600 space-y-1"><li>Analisar Leads (2-3)</li><li>Apresentações (2-3)</li><li>Propostas (2)</li><li>Follow-up (3-4)</li><li>Fechamentos (2)</li><li>Reativação (5)</li></ul></div></div></div></div>
+            </div>
+        </section>
+
+        <section id="funil" class="space-y-4 scroll-mt-20" data-role="all">
+            <h3 class="text-3xl font-semibold text-center text-primary">O Funil de Vendas Interativo</h3>
+            <div class="chart-container bg-white p-4 rounded-2xl shadow"><canvas id="salesFunnelChart"></canvas></div>
+        </section>
+
+        <section id="recursos" class="space-y-4 scroll-mt-20" data-role="all">
+            <h3 class="text-3xl font-semibold text-center text-primary">Biblioteca de Recursos</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="https://www.youtube.com/watch?v=TNcRr1vU_yc" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">O Melhor Treinamento de Vendas do Brasil</p><p class="text-sm text-stone-500">ANDRÉ ORTIZ</p></a>
+                <a href="https://www.youtube.com/watch?v=18XdUKtjdpQ" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">Curso de Vendas Completo - 20 Módulos</p><p class="text-sm text-stone-500">Brian Tracy</p></a>
+                <a href="https://www.youtube.com/watch?v=bJHh8cS7wW4" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">Aula 1 - SPIN Selling 2025</p><p class="text-sm text-stone-500">Guilherme Miranda</p></a>
+                <a href="https://www.youtube.com/watch?v=JYHfGVCKtLE" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">Aula 2 - Perguntas de Situação</p><p class="text-sm text-stone-500">Guilherme Miranda</p></a>
+                <a href="https://www.youtube.com/watch?v=XQIdFxHuuFc" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">Aula 3 - Perguntas de Problema</p><p class="text-sm text-stone-500">Guilherme Miranda</p></a>
+                <a href="https://www.youtube.com/watch?v=I0OU1AAul7M" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">Aula 4 - Perguntas de Implicação</p><p class="text-sm text-stone-500">Guilherme Miranda</p></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-800 text-white py-4 text-center">
+        <p>© 2025 Embalagens Conceito. Todos os direitos reservados.</p>
+        <div id="admin-login-area" class="mt-2"><input id="admin-password" type="password" placeholder="Senha Admin" class="bg-stone-700 p-1 rounded text-xs text-center" /><button id="admin-login-btn" class="bg-accent text-primary font-bold py-1 px-2 rounded text-xs ml-1">Entrar</button><p id="admin-error" class="text-red-400 text-xs hidden mt-1">Senha incorreta.</p></div>
     </footer>
     
     <script>
@@ -461,12 +250,13 @@
             const ADMIN_PASSWORD = 'conceito2024';
             let isAdmin = false;
 
-            function setupAccordions(containerId) {
-                const container = document.getElementById(containerId);
+            function setupAccordions(containerSelector) {
+                const container = document.getElementById(containerSelector);
                 if(container) {
                     const headers = container.querySelectorAll('.accordion-header');
                     headers.forEach(header => {
-                        header.addEventListener('click', () => {
+                        header.addEventListener('click', (e) => {
+                            if(e.target.closest('.admin-only')) return;
                             const content = header.nextElementSibling;
                             const icon = header.querySelector('.accordion-icon');
                             content.classList.toggle('hidden');
@@ -568,12 +358,14 @@
 
             const enableAdminMode = () => {
                 isAdmin = true;
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'revert');
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
                 document.getElementById('admin-login-area').innerHTML = '<p class="text-green-400 text-xs">Modo Administrador Ativado.</p>';
                 renderSdrLog();
                 renderVendedorLog();
                 renderCompetitors();
-                renderDeals(); // Re-render deals to show admin buttons
+                renderDeals();
+                renderSdrPlan();
+                renderCustomFunnel();
             };
             
             adminLoginBtn.addEventListener('click', () => {
@@ -725,8 +517,12 @@
                 tasks.forEach((task, index) => {
                     const taskEl = document.createElement('div');
                     taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
+                    const adminTag = task.createdBy === 'Admin' ? '<span class="text-xs text-accent font-bold ml-2">(Admin)</span>' : '';
                     taskEl.innerHTML = `
-                        <span>${task.text}</span>
+                        <div>
+                            <span>${task.text}</span>
+                            ${adminTag}
+                        </div>
                         <div class="flex items-center gap-2">
                             <button data-index="${index}" class="toggle-task-btn text-green-600">✓</button>
                             <button data-index="${index}" class="delete-task-btn text-red-600">✗</button>
@@ -739,7 +535,11 @@
             addTaskBtn.addEventListener('click', () => {
                 const taskText = taskInput.value.trim();
                 if (taskText) {
-                    tasks.unshift({ text: taskText, completed: false });
+                    const newTask = { text: taskText, completed: false };
+                    if (isAdmin) {
+                        newTask.createdBy = 'Admin';
+                    }
+                    tasks.unshift(newTask);
                     taskInput.value = '';
                     localStorage.setItem('sdrDailyTasks', JSON.stringify(tasks));
                     renderTasks();
@@ -770,7 +570,7 @@
 
             const renderDeals = () => {
                 document.querySelectorAll('.pipeline-list').forEach(list => {
-                    const title = list.querySelector('h4').outerHTML;
+                    const title = list.querySelector('h5').outerHTML;
                     list.innerHTML = title;
                 });
                 deals.forEach((deal, index) => {
@@ -792,7 +592,7 @@
                 });
                  addDragAndDropHandlers();
                  if (isAdmin) {
-                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'revert');
+                    document.querySelectorAll('#vendedor-pipeline-tool .admin-only').forEach(el => el.style.display = 'flex');
                  }
             };
 
@@ -906,7 +706,7 @@
 
             const renderCampaign = () => {
                 campaignDisplay.innerHTML = `
-                    <h4 class="font-bold text-lg">${campaignData.title}</h4>
+                    <h5 class="font-bold text-lg">${campaignData.title}</h5>
                     <p class="text-sm font-medium text-stone-500 mb-2">${campaignData.duration}</p>
                     <p class="text-stone-700 whitespace-pre-wrap">${campaignData.strategy}</p>
                 `;
@@ -914,19 +714,19 @@
 
             const renderGoals = () => {
                 goalsDisplay.innerHTML = `
-                    <div class="bg-stone-100 p-4 rounded-lg">
+                    <div class="bg-stone-100 p-4 rounded-lg text-center">
                         <p class="text-sm font-semibold text-stone-600">Vendas (R$)</p>
                         <p class="text-2xl font-bold">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(goalsData.vendas)}</p>
                     </div>
-                     <div class="bg-stone-100 p-4 rounded-lg">
+                     <div class="bg-stone-100 p-4 rounded-lg text-center">
                         <p class="text-sm font-semibold text-stone-600">Leads Qualificados</p>
                         <p class="text-2xl font-bold">${goalsData.leads}</p>
                     </div>
-                     <div class="bg-stone-100 p-4 rounded-lg">
+                     <div class="bg-stone-100 p-4 rounded-lg text-center">
                         <p class="text-sm font-semibold text-stone-600">Reativações</p>
                         <p class="text-2xl font-bold">${goalsData.reativacoes}</p>
                     </div>
-                     <div class="bg-stone-100 p-4 rounded-lg">
+                     <div class="bg-stone-100 p-4 rounded-lg text-center">
                         <p class="text-sm font-semibold text-stone-600">Foco Adicional</p>
                         <p class="text-xl font-bold">${goalsData.custom}</p>
                     </div>
@@ -1061,6 +861,169 @@
                 }
             });
 
+            // Role View Logic
+            const roleViewButtons = document.querySelectorAll('.role-view-btn');
+            roleViewButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const view = button.dataset.roleView;
+                    
+                    roleViewButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    document.querySelectorAll('[data-role]').forEach(section => {
+                        if (view === 'all' || section.dataset.role === view || section.dataset.role === 'all') {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+
+                     document.querySelectorAll('[data-role-column]').forEach(col => {
+                        if (view === 'all' || col.dataset.roleColumn === view) {
+                            col.style.display = 'block';
+                        } else {
+                            col.style.display = 'none';
+                        }
+                    });
+
+                    document.querySelectorAll('[data-role-tab]').forEach(tab => {
+                         if (view === 'all' || tab.dataset.roleTab === view || tab.dataset.roleTab === 'all') {
+                            tab.style.display = 'inline-block';
+                        } else {
+                            tab.style.display = 'none';
+                        }
+                    });
+
+                    // Reset tabs to default view based on role
+                    if(view === 'sdr') {
+                        document.querySelector('#registro-diario .tabs .tab-button[data-role-tab="sdr"]').click();
+                        document.querySelector('#painel-operacional .tabs .tab-button[data-role-tab="sdr"]').click();
+                    } else if (view === 'vendedor') {
+                        document.querySelector('#registro-diario .tabs .tab-button[data-role-tab="vendedor"]').click();
+                        document.querySelector('#painel-operacional .tabs .tab-button[data-role-tab="vendedor"]').click();
+                    } else { // 'all' view
+                        document.querySelector('#registro-diario .tabs .tab-button').click();
+                        document.querySelector('#painel-operacional .tabs .tab-button').click();
+                    }
+                });
+            });
+
+            // SDR Daily Plan Logic
+            const sdrPlanList = document.getElementById('sdr-daily-plan');
+            const sdrPlanInput = document.getElementById('sdr-plan-input');
+            const saveSdrPlanBtn = document.getElementById('save-sdr-plan-btn');
+            const defaultSdrPlan = [
+                "Preparar lista de leads (30+)",
+                "Pesquisar novos contatos (10)",
+                "Ligações rápidas de qualificação (10)",
+                "Follow-up com interessados (10)",
+                "Prospecção via WhatsApp (20)",
+                "Envio de catálogos/promoções (15)",
+                "Agendar reuniões para o vendedor (2-3)",
+                "Registrar tudo no CRM."
+            ];
+            let sdrPlan = JSON.parse(localStorage.getItem('sdrDailyPlan')) || defaultSdrPlan;
+
+            const renderSdrPlan = () => {
+                sdrPlanList.innerHTML = sdrPlan.map(item => `<li>${item}</li>`).join('');
+                sdrPlanInput.value = sdrPlan.join('\n');
+            };
+
+            saveSdrPlanBtn.addEventListener('click', () => {
+                const newPlan = sdrPlanInput.value.split('\n').filter(item => item.trim() !== '');
+                sdrPlan = newPlan;
+                localStorage.setItem('sdrDailyPlan', JSON.stringify(sdrPlan));
+                renderSdrPlan();
+                alert('Plano diário do SDR salvo com sucesso!');
+            });
+            
+            // Custom Funnel Logic
+            const customFunnelDisplay = document.getElementById('custom-funnel-display');
+            const funnelStageInput = document.getElementById('funnel-stage-input');
+            const addFunnelStageBtn = document.getElementById('add-funnel-stage-btn');
+            let funnelStages = JSON.parse(localStorage.getItem('customFunnel')) || ['Prospecção', 'Qualificação', 'Apresentação', 'Negociação', 'Fechamento'];
+
+            const renderCustomFunnel = () => {
+                customFunnelDisplay.innerHTML = '';
+                funnelStages.forEach((stage, index) => {
+                    const stageEl = document.createElement('div');
+                    stageEl.className = 'flex items-center';
+                    
+                    const stagePill = document.createElement('div');
+                    stagePill.className = 'bg-primary text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2';
+                    stagePill.innerHTML = `<span>${stage}</span>`;
+                    
+                    if (isAdmin) {
+                        const editBtn = document.createElement('button');
+                        editBtn.innerHTML = '✏️';
+                        editBtn.className = 'text-xs';
+                        editBtn.onclick = () => editFunnelStage(index);
+                        stagePill.appendChild(editBtn);
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.innerHTML = '🗑️';
+                        deleteBtn.className = 'text-xs';
+                        deleteBtn.onclick = () => deleteFunnelStage(index);
+                        stagePill.appendChild(deleteBtn);
+                    }
+                    
+                    stageEl.appendChild(stagePill);
+
+                    if (index < funnelStages.length - 1) {
+                        const arrow = document.createElement('span');
+                        arrow.className = 'text-primary font-bold text-2xl mx-2';
+                        arrow.textContent = '→';
+                        stageEl.appendChild(arrow);
+                    }
+                    
+                    customFunnelDisplay.appendChild(stageEl);
+                });
+            };
+            
+            const editFunnelStage = (index) => {
+                const newName = prompt('Editar nome da etapa:', funnelStages[index]);
+                if (newName && newName.trim() !== '') {
+                    funnelStages[index] = newName.trim();
+                    localStorage.setItem('customFunnel', JSON.stringify(funnelStages));
+                    renderCustomFunnel();
+                }
+            };
+
+            const deleteFunnelStage = (index) => {
+                if(confirm(`Tem certeza que deseja excluir a etapa "${funnelStages[index]}"?`)){
+                    funnelStages.splice(index, 1);
+                    localStorage.setItem('customFunnel', JSON.stringify(funnelStages));
+                    renderCustomFunnel();
+                }
+            };
+
+            addFunnelStageBtn.addEventListener('click', () => {
+                const stageName = funnelStageInput.value.trim();
+                if (stageName) {
+                    funnelStages.push(stageName);
+                    localStorage.setItem('customFunnel', JSON.stringify(funnelStages));
+                    renderCustomFunnel();
+                    funnelStageInput.value = '';
+                }
+            });
+
+            // Commercial Process Logic
+            const processDisplay = document.getElementById('process-display');
+            const processInput = document.getElementById('process-input');
+            const saveProcessBtn = document.getElementById('save-process-btn');
+            let commercialProcess = localStorage.getItem('commercialProcess') || 'Nenhum processo comercial definido. O gestor pode descrever as etapas e políticas aqui.';
+
+            const renderProcess = () => {
+                processDisplay.textContent = commercialProcess;
+                processInput.value = commercialProcess;
+            };
+
+            saveProcessBtn.addEventListener('click', () => {
+                commercialProcess = processInput.value;
+                localStorage.setItem('commercialProcess', commercialProcess);
+                renderProcess();
+                alert('Processo comercial salvo com sucesso!');
+            });
             
             // Initial render
             renderSdrLog();
@@ -1070,6 +1033,9 @@
             renderCampaign();
             renderGoals();
             renderCompetitors();
+            renderSdrPlan();
+            renderCustomFunnel();
+            renderProcess();
         });
     </script>
 </body>
