@@ -3,15 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Chosen Palette: Earthy Craft -->
-    <!-- Application Structure Plan: A single-page application designed as an interactive operations platform for the Embalagens Conceito sales team. The structure is task-oriented, focusing on daily data entry and performance tracking. It begins with core reference materials (Roles, Funnel, Playbook) and features a central "Registro Diário" section for daily inputs from both SDRs and Salespeople. This replaces previous generic tools with a structured data logging system. -->
-    <!-- Visualization & Content Choices: 
-        - Daily Log (SDR & Sales) -> Goal: Enable structured daily data entry for performance management. -> Viz: Tabbed interface with forms for input and tables for historical logs. -> Interaction: Users fill forms and click "Registrar". Data is saved to localStorage and displayed in a table with a timestamp. -> Justification: Provides a persistent, practical tool for daily use, addressing the user's need for better data management.
-        - Sales Funnel Chart -> Goal: Visualize weekly targets & conversion. -> Viz: Funnel Chart (Bar). -> Interaction: Hover for details. -> Library: Chart.js.
-        - Role Definitions -> Goal: Clarify responsibilities. -> Viz: Expandable accordions. -> Method: HTML/CSS + JS.
-        - Objection Handling -> Goal: Quick reference scripts. -> Viz: Expandable accordions. -> Method: HTML/CSS + JS.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <title>Plataforma de Vendas e Gestão - Embalagens Conceito</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -39,6 +30,9 @@
             border-color: #78350f;
             color: #78350f;
             font-weight: 600;
+        }
+        .admin-only {
+            display: none;
         }
     </style>
 </head>
@@ -83,7 +77,10 @@
                 </div>
                 
                 <div id="sdr-log-tool" class="daily-log-content">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">Registro de Atividades do SDR</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-amber-900">Registro de Atividades do SDR</h3>
+                        <button id="clear-sdr-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico SDR</button>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <input type="number" id="sdr-prospeccoes" placeholder="Nº Prospecções" class="p-2 border rounded-lg">
                         <input type="number" id="sdr-nutricoes" placeholder="Nº Leads Nutridos" class="p-2 border rounded-lg">
@@ -94,24 +91,27 @@
                     <hr class="my-6">
                     <h4 class="text-lg font-bold mb-4">Histórico de Atividades - SDR</h4>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
+                        <table class="min-w-full bg-white text-sm">
                             <thead class="bg-stone-100">
                                 <tr>
                                     <th class="py-2 px-4 text-left">Data</th>
                                     <th class="py-2 px-4 text-left">Prospecções</th>
                                     <th class="py-2 px-4 text-left">Nutridos</th>
                                     <th class="py-2 px-4 text-left">Resumo</th>
+                                    <th class="py-2 px-4 text-left admin-only">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="sdr-log-table-body">
-                                <!-- Log data will be inserted here -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
                 <div id="vendedor-log-tool" class="daily-log-content hidden">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">Registro de Resultados do Vendedor</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-amber-900">Registro de Resultados do Vendedor</h3>
+                        <button id="clear-vendedor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico Vendedor</button>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <input type="number" id="vendedor-vendas" placeholder="Nº Vendas Fechadas" class="p-2 border rounded-lg">
                         <input type="number" id="vendedor-conversoes" placeholder="Nº Leads Convertidos" class="p-2 border rounded-lg">
@@ -123,7 +123,7 @@
                     <hr class="my-6">
                     <h4 class="text-lg font-bold mb-4">Histórico de Resultados - Vendedor</h4>
                      <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
+                        <table class="min-w-full bg-white text-sm">
                             <thead class="bg-stone-100">
                                 <tr>
                                     <th class="py-2 px-4 text-left">Data</th>
@@ -131,10 +131,10 @@
                                     <th class="py-2 px-4 text-left">Conversões</th>
                                     <th class="py-2 px-4 text-left">Reativações</th>
                                     <th class="py-2 px-4 text-left">Notas</th>
+                                    <th class="py-2 px-4 text-left admin-only">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="vendedor-log-table-body">
-                                <!-- Log data will be inserted here -->
                             </tbody>
                         </table>
                     </div>
@@ -422,14 +422,22 @@
 
     <footer class="bg-stone-800 text-white">
         <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
-            <p>&copy; 2024 Embalagens Conceito. Todos os direitos reservados.</p>
-            <p class="opacity-70">Plataforma de Vendas e Gestão</p>
+            <p>© 2024 Embalagens Conceito. Todos os direitos reservados.</p>
+            <div id="admin-login-area" class="mt-4">
+                <div class="flex justify-center items-center gap-2">
+                    <input type="password" id="admin-password" placeholder="Senha do Admin" class="bg-stone-700 text-white p-1 rounded text-xs">
+                    <button id="admin-login-btn" class="bg-amber-800 text-white font-semibold py-1 px-3 rounded-lg hover:bg-amber-900 text-xs">Acessar Admin</button>
+                </div>
+                <p id="admin-error" class="text-red-400 text-xs mt-1 hidden">Senha incorreta.</p>
+            </div>
         </div>
     </footer>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            
+            const ADMIN_PASSWORD = 'conceito2024';
+            let isAdmin = false;
+
             function setupAccordions(containerId) {
                 const container = document.getElementById(containerId);
                 if(container) {
@@ -529,39 +537,78 @@
                 }
             });
 
+            // Admin Logic
+            const adminLoginBtn = document.getElementById('admin-login-btn');
+            const adminPasswordInput = document.getElementById('admin-password');
+            const adminError = document.getElementById('admin-error');
+
+            const enableAdminMode = () => {
+                isAdmin = true;
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'revert');
+                document.getElementById('admin-login-area').innerHTML = '<p class="text-green-400 text-xs">Modo Administrador Ativado.</p>';
+                renderSdrLog();
+                renderVendedorLog();
+            };
+            
+            adminLoginBtn.addEventListener('click', () => {
+                if (adminPasswordInput.value === ADMIN_PASSWORD) {
+                    enableAdminMode();
+                } else {
+                    adminError.classList.remove('hidden');
+                    setTimeout(() => adminError.classList.add('hidden'), 2000);
+                }
+            });
+
+            adminPasswordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') adminLoginBtn.click();
+            });
+
             // Daily Log Logic
-            const sdrLog = JSON.parse(localStorage.getItem('sdrDailyLog')) || [];
-            const vendedorLog = JSON.parse(localStorage.getItem('vendedorDailyLog')) || [];
+            let sdrLog = JSON.parse(localStorage.getItem('sdrDailyLog')) || [];
+            let vendedorLog = JSON.parse(localStorage.getItem('vendedorDailyLog')) || [];
+            
+            const sdrTableBody = document.getElementById('sdr-log-table-body');
+            const vendedorTableBody = document.getElementById('vendedor-log-table-body');
 
             const renderSdrLog = () => {
-                const tableBody = document.getElementById('sdr-log-table-body');
-                tableBody.innerHTML = '';
-                sdrLog.forEach(entry => {
-                    const row = tableBody.insertRow();
+                sdrTableBody.innerHTML = '';
+                sdrLog.forEach((entry, index) => {
+                    const row = sdrTableBody.insertRow();
                     row.className = 'border-b';
                     row.innerHTML = `
-                        <td class="py-2 px-4 text-sm">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
+                        <td class="py-2 px-4">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
                         <td class="py-2 px-4">${entry.prospeccoes}</td>
                         <td class="py-2 px-4">${entry.nutricoes}</td>
-                        <td class="py-2 px-4 text-sm">${entry.resumo}</td>
+                        <td class="py-2 px-4">${entry.resumo}</td>
+                        <td class="py-2 px-4 admin-only">
+                            <button data-index="${index}" class="delete-sdr-btn text-red-500 hover:text-red-700">Excluir</button>
+                        </td>
                     `;
                 });
+                if (isAdmin) {
+                    document.querySelectorAll('.delete-sdr-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                }
             };
 
             const renderVendedorLog = () => {
-                const tableBody = document.getElementById('vendedor-log-table-body');
-                tableBody.innerHTML = '';
-                vendedorLog.forEach(entry => {
-                    const row = tableBody.insertRow();
+                vendedorTableBody.innerHTML = '';
+                vendedorLog.forEach((entry, index) => {
+                    const row = vendedorTableBody.insertRow();
                     row.className = 'border-b';
                     row.innerHTML = `
-                        <td class="py-2 px-4 text-sm">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
+                        <td class="py-2 px-4">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
                         <td class="py-2 px-4">${entry.vendas}</td>
                         <td class="py-2 px-4">${entry.conversoes}</td>
                         <td class="py-2 px-4">${entry.reativacoes}</td>
-                        <td class="py-2 px-4 text-sm">${entry.notas}</td>
+                        <td class="py-2 px-4">${entry.notas}</td>
+                        <td class="py-2 px-4 admin-only">
+                             <button data-index="${index}" class="delete-vendedor-btn text-red-500 hover:text-red-700">Excluir</button>
+                        </td>
                     `;
                 });
+                if (isAdmin) {
+                    document.querySelectorAll('.delete-vendedor-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                }
             };
 
             document.getElementById('add-sdr-log-btn').addEventListener('click', () => {
@@ -574,16 +621,9 @@
                     return;
                 }
 
-                sdrLog.unshift({
-                    date: new Date().toISOString(),
-                    prospeccoes: prospeccoes || 0,
-                    nutricoes: nutricoes || 0,
-                    resumo: resumo || 'N/A'
-                });
-
+                sdrLog.unshift({ date: new Date().toISOString(), prospeccoes: prospeccoes || 0, nutricoes: nutricoes || 0, resumo: resumo || 'N/A' });
                 localStorage.setItem('sdrDailyLog', JSON.stringify(sdrLog));
                 renderSdrLog();
-
                 document.getElementById('sdr-prospeccoes').value = '';
                 document.getElementById('sdr-nutricoes').value = '';
                 document.getElementById('sdr-resumo').value = '';
@@ -600,24 +640,53 @@
                     return;
                 }
 
-                vendedorLog.unshift({
-                    date: new Date().toISOString(),
-                    vendas: vendas || 0,
-                    conversoes: conversoes || 0,
-                    reativacoes: reativacoes || 0,
-                    notas: notas || 'N/A'
-                });
-
+                vendedorLog.unshift({ date: new Date().toISOString(), vendas: vendas || 0, conversoes: conversoes || 0, reativacoes: reativacoes || 0, notas: notas || 'N/A' });
                 localStorage.setItem('vendedorDailyLog', JSON.stringify(vendedorLog));
                 renderVendedorLog();
-
                 document.getElementById('vendedor-vendas').value = '';
                 document.getElementById('vendedor-conversoes').value = '';
                 document.getElementById('vendedor-reativacoes').value = '';
                 document.getElementById('vendedor-notas').value = '';
             });
 
-            // Initial render
+            sdrTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-sdr-btn')) {
+                    const index = e.target.dataset.index;
+                    if(confirm('Tem certeza que deseja excluir este registro?')) {
+                        sdrLog.splice(index, 1);
+                        localStorage.setItem('sdrDailyLog', JSON.stringify(sdrLog));
+                        renderSdrLog();
+                    }
+                }
+            });
+
+             vendedorTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-vendedor-btn')) {
+                    const index = e.target.dataset.index;
+                     if(confirm('Tem certeza que deseja excluir este registro?')) {
+                        vendedorLog.splice(index, 1);
+                        localStorage.setItem('vendedorDailyLog', JSON.stringify(vendedorLog));
+                        renderVendedorLog();
+                    }
+                }
+            });
+
+            document.getElementById('clear-sdr-log-btn').addEventListener('click', () => {
+                if(confirm('ATENÇÃO: Isso apagará TODO o histórico do SDR. Deseja continuar?')) {
+                    sdrLog = [];
+                    localStorage.removeItem('sdrDailyLog');
+                    renderSdrLog();
+                }
+            });
+
+            document.getElementById('clear-vendedor-log-btn').addEventListener('click', () => {
+                if(confirm('ATENÇÃO: Isso apagará TODO o histórico do Vendedor. Deseja continuar?')) {
+                    vendedorLog = [];
+                    localStorage.removeItem('vendedorDailyLog');
+                    renderVendedorLog();
+                }
+            });
+
             renderSdrLog();
             renderVendedorLog();
         });
