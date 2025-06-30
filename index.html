@@ -222,11 +222,6 @@
             </div>
         </section>
 
-        <section id="funil" class="space-y-4 scroll-mt-20" data-role="all">
-            <h3 class="text-3xl font-semibold text-center text-primary">O Funil de Vendas Interativo</h3>
-            <div class="chart-container bg-white p-4 rounded-2xl shadow"><canvas id="salesFunnelChart"></canvas></div>
-        </section>
-
         <section id="recursos" class="space-y-4 scroll-mt-20" data-role="all">
             <h3 class="text-3xl font-semibold text-center text-primary">Biblioteca de Recursos</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -247,6 +242,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // All JS logic is now included
             const ADMIN_PASSWORD = 'conceito2024';
             let isAdmin = false;
 
@@ -304,52 +300,6 @@
                 goals: [200, 60, 30, 10, 10, '5-8'],
                 conversions: [null, 30, 50, 33.3, 100, 70]
             };
-
-            const ctx = document.getElementById('salesFunnelChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: funnelData.labels,
-                    datasets: [{
-                        label: 'Meta Semanal',
-                        data: funnelData.values,
-                        backgroundColor: [
-                            'rgba(120, 53, 15, 0.8)','rgba(120, 53, 15, 0.7)','rgba(120, 53, 15, 0.6)',
-                            'rgba(120, 53, 15, 0.5)','rgba(120, 53, 15, 0.4)','rgba(120, 53, 15, 0.3)'
-                        ],
-                        borderColor: 'rgba(120, 53, 15, 1)',
-                        borderWidth: 1,
-                        barPercentage: 1.0,
-                        categoryPercentage: 0.9,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    scales: {
-                        x: { beginAtZero: true, grid: { display: false }, ticks: { display: true } },
-                        y: { grid: { display: false }, ticks: { font: { size: 14, weight: '500' } } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const index = context.dataIndex;
-                                    const goal = funnelData.goals[index];
-                                    const conversion = funnelData.conversions[index];
-                                    let label = `Meta: ${goal}`;
-                                    if(conversion !== null) {
-                                       label += ` | Conversão: ${conversion.toFixed(1)}%`;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
 
             // Admin Logic
             const adminLoginBtn = document.getElementById('admin-login-btn');
