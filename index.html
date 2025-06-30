@@ -240,7 +240,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, onSnapshot, deleteDoc, setDoc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, onSnapshot, deleteDoc, setDoc, updateDoc, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
@@ -302,6 +302,7 @@
             function renderSdrLog(logs) {
                 const sdrLogTableBody = document.getElementById('sdr-log-table-body');
                 sdrLogTableBody.innerHTML = '';
+                logs.sort((a, b) => b.timestamp - a.timestamp);
                 logs.forEach(entry => {
                     const row = sdrLogTableBody.insertRow();
                     row.className = 'border-b';
@@ -323,6 +324,7 @@
             function renderVendedorLog(logs) {
                 const vendedorLogTableBody = document.getElementById('vendedor-log-table-body');
                 vendedorLogTableBody.innerHTML = '';
+                logs.sort((a, b) => b.timestamp - a.timestamp);
                 logs.forEach(entry => {
                     const row = vendedorLogTableBody.insertRow();
                     row.className = 'border-b';
@@ -345,6 +347,7 @@
             function renderTasks(tasks) {
                 const taskListEl = document.getElementById('task-list');
                 taskListEl.innerHTML = '';
+                tasks.sort((a, b) => b.timestamp - a.timestamp);
                 tasks.forEach(task => {
                     const taskEl = document.createElement('div');
                     taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
@@ -392,6 +395,7 @@
                     const title = list.querySelector('h5').outerHTML;
                     list.innerHTML = title;
                 });
+                deals.sort((a, b) => b.timestamp - a.timestamp);
                 deals.forEach(deal => {
                     const dealEl = document.createElement('div');
                     dealEl.className = 'p-2 bg-white rounded shadow text-sm cursor-grab';
@@ -418,6 +422,7 @@
             function renderCompetitors(competitors) {
                 const competitorTableBody = document.getElementById('competitor-table-body');
                 competitorTableBody.innerHTML = '';
+                competitors.sort((a, b) => b.timestamp - a.timestamp);
                 competitors.forEach(comp => {
                     const row = competitorTableBody.insertRow();
                     row.className = 'border-b';
@@ -867,11 +872,11 @@
             setupAccordions('vendedor-tasks-accordion');
             setupTabs('#registro-diario', '.daily-log-tab', '.daily-log-content');
             setupTabs('#painel-operacional', '.operational-tab', '.operational-content');
-            onSnapshot(sdrLogCol, (snapshot) => renderSdrLog(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
-            onSnapshot(vendedorLogCol, (snapshot) => renderVendedorLog(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
-            onSnapshot(tasksCol, (snapshot) => renderTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
-            onSnapshot(dealsCol, (snapshot) => renderDeals(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
-            onSnapshot(competitorsCol, (snapshot) => renderCompetitors(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(query(sdrLogCol), (snapshot) => renderSdrLog(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(query(vendedorLogCol), (snapshot) => renderVendedorLog(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(query(tasksCol), (snapshot) => renderTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(query(dealsCol), (snapshot) => renderDeals(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+            onSnapshot(query(competitorsCol), (snapshot) => renderCompetitors(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
             onSnapshot(campaignDoc, (doc) => renderCampaign(doc.exists() ? doc.data() : defaultCampaign));
             onSnapshot(goalsDoc, (doc) => renderGoals(doc.exists() ? doc.data() : defaultGoals));
             onSnapshot(processDoc, (doc) => renderProcess(doc.exists() ? doc.data().text : 'Nenhum processo definido.'));
