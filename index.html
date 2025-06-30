@@ -293,6 +293,11 @@
         function initializeAppLogic() {
             // All functions are defined before being called
             
+            const defaultCampaign = { title: 'Nenhuma campanha ativa no momento.', duration: '', strategy: 'O gestor definirá a próxima campanha em breve.' };
+            const defaultGoals = { vendas: 0, leads: 0, reativacoes: 0, custom: 'N/A' };
+            const defaultSdrPlan = ["Preparar lista de leads (30+)", "Pesquisar novos contatos (10)", "Ligações rápidas de qualificação (10)", "Follow-up com interessados (10)", "Prospecção via WhatsApp (20)", "Envio de catálogos/promoções (15)", "Agendar reuniões para o vendedor (2-3)", "Registrar tudo no CRM."];
+            const defaultVendedorPlan = ["Analisar Leads (2-3)", "Apresentações (2-3)", "Propostas (2)", "Follow-up (3-4)", "Fechamentos (2)", "Reativação (5)"];
+
             // --- Render Functions ---
             function renderSdrLog(logs) {
                 const sdrLogTableBody = document.getElementById('sdr-log-table-body');
