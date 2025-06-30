@@ -11,9 +11,10 @@
         - Objection Handling Scripts -> Goal: Quick access to responses. -> Viz: Interactive accordion. -> Interaction: Click to reveal script. -> Justification: Mimics a real-world scenario needing a quick answer. -> Method: HTML/CSS + JS.
         - Handoff Process -> Goal: Illustrate lead transfer steps. -> Viz: Step-by-step visual diagram. -> Interaction: None. -> Justification: Visual flow is easier to remember than text. -> Method: HTML/CSS with flexbox and Unicode icons.
         - Scripts (WhatsApp/Call) -> Goal: Make scripts easy to use. -> Viz: Blocks within tabs. -> Interaction: Copy to clipboard button. -> Justification: Highly practical for pasting into other apps. -> Method: HTML/CSS + JS.
+        - Daily Tools (NEW) -> Goal: Provide daily utility. -> Viz: Tabbed component with a To-Do list for SDRs and a Kanban-like pipeline for Sales. -> Interaction: Add, complete, delete tasks; move deals across stages. Data saved to localStorage. -> Justification: Transforms the page from a static reference to a dynamic daily workspace.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <title>Painel de Vendas - Embalagens Conceito</title>
+    <title>Plataforma de Vendas - Embalagens Conceito</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,6 +42,10 @@
             color: #78350f;
             font-weight: 600;
         }
+        .task-item.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
@@ -51,12 +56,13 @@
                 <div class="flex items-center">
                      <span class="text-xl font-bold text-amber-900">Embalagens Conceito</span>
                 </div>
-                <nav class="hidden md:flex md:space-x-8">
-                    <a href="#missao" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Nossa Missão</a>
-                    <a href="#funcoes" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">As Funções</a>
-                    <a href="#funil" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funil de Vendas</a>
+                <nav class="hidden md:flex md:space-x-6 lg:space-x-8">
+                    <a href="#dashboard" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Painel Diário</a>
+                    <a href="#funcoes" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funções</a>
+                    <a href="#funil" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funil</a>
                     <a href="#playbook" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Playbook</a>
-                    <a href="#cultura" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Processos e Cultura</a>
+                    <a href="#cultura" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Processos</a>
+                    <a href="#recursos" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Recursos</a>
                 </nav>
             </div>
         </div>
@@ -65,11 +71,61 @@
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         <section id="missao" class="text-center mb-20 scroll-mt-20">
-            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-tight">Guia Interativo de Vendas</h1>
-            <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Um manual prático e didático para alinhar nossas estratégias e capacitar nossa equipe de vendas para o sucesso.</p>
-            <div class="mt-8 bg-white p-8 rounded-2xl shadow-md border border-stone-200 max-w-4xl mx-auto">
-                <h2 class="text-2xl font-bold text-stone-800 mb-4">Sobre a Embalagens Conceito</h2>
-                <p class="text-stone-600 text-left">Fundada em setembro de 2016 em Toledo-PR, nossa missão é atender os segmentos de confeitaria, fast-food e datas sazonais com produtos de alta qualidade e padrão técnico. Nosso objetivo é agregar valor aos produtos de nossos clientes, proporcionando confiança e credibilidade e estreitando parcerias com o setor atacadista de todo o Brasil. Atendemos com uma ampla variedade de caixas, forminhas, sacolas, tags e embalagens especiais para Páscoa e Natal.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-tight">Plataforma de Vendas e Operações</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Sua ferramenta diária para organização, prospecção, aprendizado e resultados na Embalagens Conceito.</p>
+        </section>
+        
+        <section id="dashboard" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">Painel de Controle Diário</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Organize suas tarefas e visualize suas oportunidades. Os dados são salvos automaticamente no seu navegador.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                <div class="border-b border-stone-200 mb-4">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button class="tab-button daily-tool-tab active" data-target="sdr-tool">📝 Tarefas do Dia (SDR)</button>
+                        <button class="tab-button daily-tool-tab" data-target="vendedor-tool">📊 Pipeline de Vendas (Vendedor)</button>
+                    </nav>
+                </div>
+                
+                <div id="sdr-tool" class="daily-tool-content">
+                    <div class="flex gap-4 mb-4">
+                        <input type="text" id="new-task-input" placeholder="Adicionar nova tarefa de prospecção..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
+                        <button id="add-task-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar</button>
+                    </div>
+                    <div id="task-list" class="space-y-2"></div>
+                </div>
+
+                <div id="vendedor-tool" class="daily-tool-content hidden">
+                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div id="pipeline-qualificado" class="bg-stone-100 p-4 rounded-lg">
+                            <h4 class="font-bold text-center mb-2">Lead Qualificado</h4>
+                            <div class="pipeline-list space-y-2" data-stage="qualificado"></div>
+                        </div>
+                        <div id="pipeline-proposta" class="bg-stone-100 p-4 rounded-lg">
+                            <h4 class="font-bold text-center mb-2">Proposta Enviada</h4>
+                            <div class="pipeline-list space-y-2" data-stage="proposta"></div>
+                        </div>
+                        <div id="pipeline-negociacao" class="bg-stone-100 p-4 rounded-lg">
+                             <h4 class="font-bold text-center mb-2">Em Negociação</h4>
+                             <div class="pipeline-list space-y-2" data-stage="negociacao"></div>
+                        </div>
+                        <div class="space-y-4">
+                           <div id="pipeline-fechado" class="bg-green-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-green-800 text-center mb-2">Fechado</h4>
+                                <div class="pipeline-list space-y-2" data-stage="fechado"></div>
+                            </div>
+                            <div id="pipeline-perdido" class="bg-red-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-800 text-center mb-2">Perdido</h4>
+                                <div class="pipeline-list space-y-2" data-stage="perdido"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex gap-4">
+                         <input type="text" id="new-deal-input" placeholder="Nome do novo lead..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
+                        <button id="add-deal-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar Lead</button>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -202,32 +258,20 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                    <h3 class="text-xl font-bold text-amber-900 mb-4">3. Scripts Essenciais</h3>
-                    <div id="scripts-container">
-                        <div class="border-b border-stone-200 mb-4">
-                            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                                <button class="tab-button active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" data-target="whatsapp-script">
-                                    Abordagem (WhatsApp)
-                                </button>
-                                <button class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300" data-target="call-script">
-                                    Qualificação (Ligação)
-                                </button>
-                            </nav>
-                        </div>
-                        <div id="whatsapp-script" class="tab-content">
-                            <p class="text-stone-600 mb-2">Ideal para o primeiro contato: personalizado, direto e com uma proposta de valor clara.</p>
-                            <div class="bg-stone-100 p-4 rounded-lg">
-                                <p id="script-text-1" class="text-stone-700">"Olá, tudo bem? Me chamo [Seu Nome], sou da Embalagens Conceito! Vi que você tem uma loja de [Segmento do Cliente] e queria te mostrar nossa linha de embalagens exclusivas para datas como [Data Sazonal, ex: Dia dos Pais]. Posso te mandar nosso catálogo com fotos e nossos lançamentos?"</p>
-                            </div>
-                            <button onclick="copyToClipboard('script-text-1', this)" class="mt-3 bg-amber-800 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Copiar Script</button>
-                        </div>
-                        <div id="call-script" class="tab-content hidden">
-                             <p class="text-stone-600 mb-2">Use este roteiro para uma qualificação rápida por telefone.</p>
-                            <div class="bg-stone-100 p-4 rounded-lg">
-                                <p id="script-text-2" class="text-stone-700">"Olá, [Nome do Prospect]! Tudo bem? Aqui é [Seu Nome], da Embalagens Conceito. Nós somos uma fábrica especializada em embalagens para confeitaria, presentes e datas comemorativas. Estou entrando em contato rapidinho para entender se faz sentido apresentarmos nossas soluções para sua loja. Você pode me atender por 2 minutinhos?"</p>
-                            </div>
-                            <button onclick="copyToClipboard('script-text-2', this)" class="mt-3 bg-amber-800 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Copiar Script</button>
-                        </div>
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">3. Qualificação Rápida para CRM</h3>
+                    <p class="text-stone-600 mb-4">Preencha os campos abaixo para gerar um resumo padronizado. Depois, copie e cole no seu CRM ou planilha.</p>
+                    <div id="crm-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="crm-nome-cliente" placeholder="Nome do Cliente" class="p-2 border rounded-lg">
+                        <input type="text" id="crm-nome-loja" placeholder="Nome da Loja / Perfil" class="p-2 border rounded-lg">
+                        <input type="text" id="crm-local" placeholder="Cidade / Estado" class="p-2 border rounded-lg">
+                        <input type="text" id="crm-tipo-loja" placeholder="Tipo de Loja" class="p-2 border rounded-lg">
+                        <textarea id="crm-dores" placeholder="Dores e Objeções principais..." rows="3" class="md:col-span-2 p-2 border rounded-lg"></textarea>
+                    </div>
+                    <button id="generate-crm-summary" class="mt-4 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Gerar Resumo</button>
+                    <div id="crm-summary-container" class="mt-4 hidden">
+                        <h4 class="font-bold">Resumo para Copiar:</h4>
+                        <div id="crm-summary-output" class="bg-stone-100 p-4 rounded-lg mt-2 text-stone-700 whitespace-pre-wrap"></div>
+                        <button onclick="copyToClipboard('crm-summary-output', this)" class="mt-3 bg-green-600 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Copiar Resumo</button>
                     </div>
                 </div>
 
@@ -340,7 +384,42 @@
                        <div class="bg-white/20 p-3 rounded-lg col-span-2 sm:col-span-1 md:col-span-1">Foco nos Números</div>
                     </div>
                 </div>
+            </div>
+        </section>
 
+        <section id="recursos" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">Biblioteca de Recursos</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Aprofunde seus conhecimentos com vídeos e materiais selecionados para o seu desenvolvimento contínuo.</p>
+            </div>
+             <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                <h3 class="text-xl font-bold text-amber-900 mb-4">Vídeos Recomendados</h3>
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <a href="https://www.youtube.com/watch?v=G5Y4s-3-A7w" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                         <p class="font-semibold">O que faz um SDR?</p>
+                         <p class="text-sm text-stone-500">Papo de Vendedor</p>
+                     </a>
+                     <a href="https://www.youtube.com/watch?v=jW012yVn_2A" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                         <p class="font-semibold">5 Gatilhos Mentais para Vendas</p>
+                         <p class="text-sm text-stone-500">Thiago Concer</p>
+                     </a>
+                      <a href="https://www.youtube.com/watch?v=YSA0jxES8pI" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                         <p class="font-semibold">Como lidar com Objeções</p>
+                         <p class="text-sm text-stone-500">Meetime</p>
+                     </a>
+                      <a href="https://www.youtube.com/watch?v=wX-koagBS_M" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                         <p class="font-semibold">As 3 Melhores Técnicas de Fechamento</p>
+                         <p class="text-sm text-stone-500">Papo de Vendedor</p>
+                     </a>
+                      <a href="https://www.youtube.com/watch?v=H7mw24qg5_8" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                         <p class="font-semibold">Gestão de KPIs em Vendas</p>
+                         <p class="text-sm text-stone-500">Klenty</p>
+                     </a>
+                     <a href="https://www.youtube.com/watch?v=M-Oa-yl8i28" target="_blank" class="block bg-stone-50 p-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all">
+                         <p class="font-semibold">Como Vender Valor, não Preço</p>
+                         <p class="text-sm text-stone-500">Jordam Campos</p>
+                     </a>
+                 </div>
             </div>
         </section>
         
@@ -349,19 +428,18 @@
     <footer class="bg-stone-800 text-white">
         <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
             <p>&copy; 2024 Embalagens Conceito. Todos os direitos reservados.</p>
-            <p class="opacity-70">Painel de Vendas Interativo</p>
+            <p class="opacity-70">Plataforma de Vendas e Operações</p>
         </div>
     </footer>
     
     <div id="copy-feedback" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300">
-        Script copiado!
+        Texto copiado!
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const accordionContainers = ['sdr-tasks', 'vendedor-tasks', 'objections-accordion'];
-
-            accordionContainers.forEach(containerId => {
+            
+            function setupAccordions(containerId) {
                 const container = document.getElementById(containerId);
                 if(container) {
                     const headers = container.querySelectorAll('.accordion-header');
@@ -369,38 +447,43 @@
                         header.addEventListener('click', () => {
                             const content = header.nextElementSibling;
                             const icon = header.querySelector('.accordion-icon');
-                            
                             content.classList.toggle('hidden');
                             icon.classList.toggle('rotate-180');
                         });
                     });
                 }
-            });
+            }
 
-            const tabsContainer = document.getElementById('scripts-container');
-            if (tabsContainer) {
-                const tabButtons = tabsContainer.querySelectorAll('.tab-button');
-                const tabContents = tabsContainer.querySelectorAll('.tab-content');
+            setupAccordions('sdr-tasks');
+            setupAccordions('vendedor-tasks');
+            setupAccordions('objections-accordion');
+            
+            function setupTabs(containerSelector, buttonSelector, contentSelector) {
+                 const tabsContainer = document.querySelector(containerSelector);
+                if (tabsContainer) {
+                    const tabButtons = tabsContainer.querySelectorAll(buttonSelector);
+                    const tabContents = tabsContainer.querySelectorAll(contentSelector);
 
-                tabButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        const targetId = button.dataset.target;
-                        
-                        tabButtons.forEach(btn => {
-                            btn.classList.remove('active');
-                        });
-                        button.classList.add('active');
-                        
-                        tabContents.forEach(content => {
-                            if (content.id === targetId) {
-                                content.classList.remove('hidden');
-                            } else {
-                                content.classList.add('hidden');
-                            }
+                    tabButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            const targetId = button.dataset.target;
+                            
+                            tabButtons.forEach(btn => btn.classList.remove('active'));
+                            button.classList.add('active');
+                            
+                            tabContents.forEach(content => {
+                                if (content.id === targetId) {
+                                    content.classList.remove('hidden');
+                                } else {
+                                    content.classList.add('hidden');
+                                }
+                            });
                         });
                     });
-                });
+                }
             }
+
+            setupTabs('#dashboard', '.daily-tool-tab', '.daily-tool-content');
 
             const funnelData = {
                 labels: ['Contatos Iniciados', 'Leads com Interesse', 'Leads Qualificados', 'Reuniões Agendadas', 'Propostas Enviadas', 'Fechamentos'],
@@ -418,12 +501,8 @@
                         label: 'Meta Semanal',
                         data: funnelData.values,
                         backgroundColor: [
-                            'rgba(120, 53, 15, 0.8)',
-                            'rgba(120, 53, 15, 0.7)',
-                            'rgba(120, 53, 15, 0.6)',
-                            'rgba(120, 53, 15, 0.5)',
-                            'rgba(120, 53, 15, 0.4)',
-                            'rgba(120, 53, 15, 0.3)'
+                            'rgba(120, 53, 15, 0.8)','rgba(120, 53, 15, 0.7)','rgba(120, 53, 15, 0.6)',
+                            'rgba(120, 53, 15, 0.5)','rgba(120, 53, 15, 0.4)','rgba(120, 53, 15, 0.3)'
                         ],
                         borderColor: 'rgba(120, 53, 15, 1)',
                         borderWidth: 1,
@@ -436,25 +515,11 @@
                     maintainAspectRatio: false,
                     indexAxis: 'y',
                     scales: {
-                        x: {
-                            beginAtZero: true,
-                            grid: { display: false },
-                            ticks: { display: true }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: {
-                                font: {
-                                    size: 14,
-                                    weight: '500'
-                                }
-                            }
-                        }
+                        x: { beginAtZero: true, grid: { display: false }, ticks: { display: true } },
+                        y: { grid: { display: false }, ticks: { font: { size: 14, weight: '500' } } }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -472,6 +537,131 @@
                     }
                 }
             });
+
+            // Daily Tools Logic
+            // SDR Task List
+            const taskInput = document.getElementById('new-task-input');
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const taskList = document.getElementById('task-list');
+            let tasks = JSON.parse(localStorage.getItem('sdrTasks')) || [];
+
+            const renderTasks = () => {
+                taskList.innerHTML = '';
+                tasks.forEach((task, index) => {
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
+                    taskEl.innerHTML = `
+                        <span>${task.text}</span>
+                        <div class="flex items-center gap-2">
+                            <button data-index="${index}" class="toggle-task-btn text-green-600">✓</button>
+                            <button data-index="${index}" class="delete-task-btn text-red-600">✗</button>
+                        </div>
+                    `;
+                    taskList.appendChild(taskEl);
+                });
+            };
+
+            addTaskBtn.addEventListener('click', () => {
+                const taskText = taskInput.value.trim();
+                if (taskText) {
+                    tasks.push({ text: taskText, completed: false });
+                    taskInput.value = '';
+                    localStorage.setItem('sdrTasks', JSON.stringify(tasks));
+                    renderTasks();
+                }
+            });
+            
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTaskBtn.click();
+            });
+
+            taskList.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                if (e.target.classList.contains('toggle-task-btn')) {
+                    tasks[index].completed = !tasks[index].completed;
+                }
+                if (e.target.classList.contains('delete-task-btn')) {
+                    tasks.splice(index, 1);
+                }
+                localStorage.setItem('sdrTasks', JSON.stringify(tasks));
+                renderTasks();
+            });
+            
+            // Vendedor Pipeline
+            const dealInput = document.getElementById('new-deal-input');
+            const addDealBtn = document.getElementById('add-deal-btn');
+            let deals = JSON.parse(localStorage.getItem('salesDeals')) || [];
+
+            const renderDeals = () => {
+                document.querySelectorAll('.pipeline-list').forEach(list => list.innerHTML = '');
+                deals.forEach((deal, index) => {
+                    const dealEl = document.createElement('div');
+                    dealEl.className = 'p-2 bg-white rounded shadow text-sm';
+                    dealEl.innerHTML = `
+                        <p class="font-semibold">${deal.text}</p>
+                        <div class="mt-2 text-xs flex gap-1">
+                            ${deal.stage !== 'qualificado' ? `<button data-index="${index}" data-to="qualificado" class="move-deal-btn">Qual.</button>` : ''}
+                            ${deal.stage !== 'proposta' ? `<button data-index="${index}" data-to="proposta" class="move-deal-btn">Prop.</button>` : ''}
+                            ${deal.stage !== 'negociacao' ? `<button data-index="${index}" data-to="negociacao" class="move-deal-btn">Negoc.</button>` : ''}
+                            ${deal.stage !== 'fechado' ? `<button data-index="${index}" data-to="fechado" class="move-deal-btn text-green-600">Ganho</button>` : ''}
+                            ${deal.stage !== 'perdido' ? `<button data-index="${index}" data-to="perdido" class="move-deal-btn text-red-600">Perdido</button>` : ''}
+                        </div>
+                    `;
+                    document.querySelector(`.pipeline-list[data-stage="${deal.stage}"]`).appendChild(dealEl);
+                });
+            };
+            
+            addDealBtn.addEventListener('click', () => {
+                const dealText = dealInput.value.trim();
+                if(dealText) {
+                    deals.push({ text: dealText, stage: 'qualificado' });
+                    dealInput.value = '';
+                    localStorage.setItem('salesDeals', JSON.stringify(deals));
+                    renderDeals();
+                }
+            });
+
+            dealInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addDealBtn.click();
+            });
+
+            document.getElementById('vendedor-tool').addEventListener('click', (e) => {
+                if (e.target.classList.contains('move-deal-btn')) {
+                    const index = e.target.dataset.index;
+                    const newStage = e.target.dataset.to;
+                    deals[index].stage = newStage;
+                    localStorage.setItem('salesDeals', JSON.stringify(deals));
+                    renderDeals();
+                }
+            });
+            
+            // CRM Summary Generator
+            document.getElementById('generate-crm-summary').addEventListener('click', () => {
+                const nomeCliente = document.getElementById('crm-nome-cliente').value;
+                const nomeLoja = document.getElementById('crm-nome-loja').value;
+                const local = document.getElementById('crm-local').value;
+                const tipoLoja = document.getElementById('crm-tipo-loja').value;
+                const dores = document.getElementById('crm-dores').value;
+
+                if(!nomeCliente || !nomeLoja) {
+                    alert('Por favor, preencha pelo menos o Nome do Cliente e da Loja.');
+                    return;
+                }
+
+                const summary = `
+## Resumo do Lead: ${nomeLoja} ##
+- **Contato:** ${nomeCliente}
+- **Local:** ${local}
+- **Tipo de Loja:** ${tipoLoja}
+- **Dores/Observações:** ${dores}
+                `;
+                document.getElementById('crm-summary-output').innerText = summary.trim();
+                document.getElementById('crm-summary-container').classList.remove('hidden');
+            });
+            
+            // Initial render
+            renderTasks();
+            renderDeals();
         });
 
         function copyToClipboard(elementId, button) {
@@ -485,12 +675,12 @@
             
             const feedbackEl = document.getElementById('copy-feedback');
             feedbackEl.classList.remove('opacity-0');
-            const originalText = button.innerHTML;
-            button.innerHTML = 'Copiado!';
+            const originalText = button.innerText;
+            button.innerText = 'Copiado!';
 
             setTimeout(() => {
                 feedbackEl.classList.add('opacity-0');
-                button.innerHTML = originalText;
+                button.innerText = originalText;
             }, 2000);
         }
     </script>
