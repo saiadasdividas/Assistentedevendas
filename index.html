@@ -105,7 +105,11 @@
                              <input type="number" id="goal-reativacoes" placeholder="Meta Reativações" class="p-2 border rounded-lg">
                              <input type="text" id="goal-custom" placeholder="Outra Meta (ex: 10 Novos Clientes)" class="p-2 border rounded-lg">
                         </div>
-                        <button id="save-goals-btn" class="mt-4 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Metas</button>
+                        <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                            <button id="save-goals-btn" class="flex-1 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Metas</button>
+                            <button id="edit-goals-btn" class="flex-1 bg-stone-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-stone-600">Editar Atuais</button>
+                            <button id="delete-goals-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600">Excluir</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -876,8 +880,10 @@
              // Campaign & Goals Logic
             const campaignDisplay = document.getElementById('campaign-display');
             const goalsDisplay = document.getElementById('goals-display');
-            let campaignData = JSON.parse(localStorage.getItem('salesCampaign')) || { title: 'Nenhuma campanha ativa no momento.', duration: '', strategy: 'O gestor definirá a próxima campanha em breve.' };
-            let goalsData = JSON.parse(localStorage.getItem('teamGoals')) || { vendas: 0, leads: 0, reativacoes: 0, custom: 'N/A' };
+            const defaultCampaign = { title: 'Nenhuma campanha ativa no momento.', duration: '', strategy: 'O gestor definirá a próxima campanha em breve.' };
+            const defaultGoals = { vendas: 0, leads: 0, reativacoes: 0, custom: 'N/A' };
+            let campaignData = JSON.parse(localStorage.getItem('salesCampaign')) || defaultCampaign;
+            let goalsData = JSON.parse(localStorage.getItem('teamGoals')) || defaultGoals;
 
             const renderCampaign = () => {
                 campaignDisplay.innerHTML = `
@@ -931,11 +937,7 @@
 
             document.getElementById('delete-campaign-btn').addEventListener('click', () => {
                 if (confirm('Tem certeza que deseja excluir a campanha atual?')) {
-                    campaignData = { 
-                        title: 'Nenhuma campanha ativa no momento.', 
-                        duration: '', 
-                        strategy: 'O gestor definirá a próxima campanha em breve.' 
-                    };
+                    campaignData = defaultCampaign;
                     localStorage.setItem('salesCampaign', JSON.stringify(campaignData));
                     renderCampaign();
                     document.getElementById('campaign-title').value = '';
@@ -955,6 +957,27 @@
                 localStorage.setItem('teamGoals', JSON.stringify(goalsData));
                 renderGoals();
                 alert('Metas salvas com sucesso!');
+            });
+            
+            document.getElementById('edit-goals-btn').addEventListener('click', () => {
+                 document.getElementById('goal-vendas').value = goalsData.vendas;
+                 document.getElementById('goal-leads').value = goalsData.leads;
+                 document.getElementById('goal-reativacoes').value = goalsData.reativacoes;
+                 document.getElementById('goal-custom').value = goalsData.custom;
+                 alert('Metas atuais carregadas para edição.');
+            });
+            
+            document.getElementById('delete-goals-btn').addEventListener('click', () => {
+                 if (confirm('Tem certeza que deseja excluir as metas atuais?')) {
+                    goalsData = defaultGoals;
+                    localStorage.setItem('teamGoals', JSON.stringify(goalsData));
+                    renderGoals();
+                    document.getElementById('goal-vendas').value = '';
+                    document.getElementById('goal-leads').value = '';
+                    document.getElementById('goal-reativacoes').value = '';
+                    document.getElementById('goal-custom').value = '';
+                    alert('Metas excluídas.');
+                }
             });
             
             // Initial render
