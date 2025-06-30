@@ -34,6 +34,10 @@
         .admin-only {
             display: none;
         }
+        .task-item.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
@@ -45,11 +49,11 @@
                      <span class="text-xl font-bold text-amber-900">Embalagens Conceito</span>
                 </div>
                 <nav class="hidden md:flex md:space-x-6 lg:space-x-8">
+                    <a href="#campanhas" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Campanhas</a>
                     <a href="#registro-diario" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Registro Diário</a>
+                    <a href="#painel-operacional" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Painel Operacional</a>
                     <a href="#funcoes" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funções</a>
                     <a href="#funil" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Funil</a>
-                    <a href="#playbook" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Playbook</a>
-                    <a href="#cultura" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Processos</a>
                     <a href="#recursos" class="text-sm font-medium text-stone-600 hover:text-amber-900 transition-colors">Recursos</a>
                 </nav>
             </div>
@@ -63,6 +67,46 @@
             <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">Sua ferramenta diária para registro de atividades, acompanhamento de metas e consulta de materiais na Embalagens Conceito.</p>
         </section>
         
+        <section id="campanhas" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">Campanhas e Metas Ativas</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Foco da equipe para a semana/mês. Consulte aqui as estratégias e metas vigentes.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200 space-y-8">
+                <div>
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">📢 Campanha Atual</h3>
+                    <div id="campaign-display" class="p-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg">
+                        <!-- Campaign content will be loaded here -->
+                    </div>
+                    <div id="admin-campaign-form" class="admin-only mt-4 p-4 border-t border-stone-200">
+                        <h4 class="font-bold mb-2">Definir Nova Campanha (Admin)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <input type="text" id="campaign-title" placeholder="Título da Campanha" class="p-2 border rounded-lg">
+                             <input type="text" id="campaign-duration" placeholder="Duração (ex: 01/07 a 07/07)" class="p-2 border rounded-lg">
+                        </div>
+                        <textarea id="campaign-strategy" placeholder="Descreva a estratégia, regras e foco da campanha..." rows="3" class="w-full mt-4 p-2 border rounded-lg"></textarea>
+                        <button id="save-campaign-btn" class="mt-2 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Campanha</button>
+                    </div>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">🎯 Metas da Equipe</h3>
+                    <div id="goals-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                       <!-- Goals content will be loaded here -->
+                    </div>
+                     <div id="admin-goals-form" class="admin-only mt-4 p-4 border-t border-stone-200">
+                        <h4 class="font-bold mb-2">Definir Metas da Equipe (Admin)</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                             <input type="number" id="goal-vendas" placeholder="Meta de Vendas (R$)" class="p-2 border rounded-lg">
+                             <input type="number" id="goal-leads" placeholder="Meta Leads Qualificados" class="p-2 border rounded-lg">
+                             <input type="number" id="goal-reativacoes" placeholder="Meta Reativações" class="p-2 border rounded-lg">
+                             <input type="text" id="goal-custom" placeholder="Outra Meta (ex: 10 Novos Clientes)" class="p-2 border rounded-lg">
+                        </div>
+                        <button id="save-goals-btn" class="mt-4 bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900">Salvar Metas</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="registro-diario" class="mb-20 scroll-mt-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold tracking-tight">Painel de Registros Diários</h2>
@@ -81,7 +125,7 @@
                         <h3 class="text-xl font-bold text-amber-900">Registro de Atividades do SDR</h3>
                         <button id="clear-sdr-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico SDR</button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <input type="number" id="sdr-prospeccoes" placeholder="Nº Prospecções" class="p-2 border rounded-lg">
                         <input type="number" id="sdr-nutricoes" placeholder="Nº Leads Nutridos" class="p-2 border rounded-lg">
                     </div>
@@ -108,7 +152,7 @@
                 </div>
 
                 <div id="vendedor-log-tool" class="daily-log-content hidden">
-                    <div class="flex justify-between items-center mb-4">
+                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-bold text-amber-900">Registro de Resultados do Vendedor</h3>
                         <button id="clear-vendedor-log-btn" class="admin-only text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600 transition-colors">Limpar Histórico Vendedor</button>
                     </div>
@@ -141,6 +185,83 @@
                 </div>
             </div>
         </section>
+        
+        <section id="painel-operacional" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">Painel Operacional Diário</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Organize suas tarefas, pipeline de clientes e faça cálculos rápidos aqui. Os dados são salvos automaticamente.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
+                <div class="border-b border-stone-200 mb-6">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button class="tab-button operational-tab active" data-target="sdr-task-tool">📋 Tarefas do SDR</button>
+                        <button class="tab-button operational-tab" data-target="vendedor-pipeline-tool">🗂️ Pipeline do Vendedor</button>
+                         <button class="tab-button operational-tab" data-target="calculadora-tool">🧮 Calculadora de Vendas</button>
+                    </nav>
+                </div>
+
+                <div id="sdr-task-tool" class="operational-content">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">Lista de Tarefas do Dia (SDR)</h3>
+                    <div class="flex gap-4 mb-4">
+                        <input type="text" id="new-task-input" placeholder="Adicionar nova tarefa..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
+                        <button id="add-task-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar</button>
+                    </div>
+                    <div id="task-list" class="space-y-2"></div>
+                </div>
+                
+                <div id="vendedor-pipeline-tool" class="operational-content hidden">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">Pipeline de Vendas (Kanban)</h3>
+                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px]">
+                            <h4 class="font-bold text-center mb-2">Qualificado</h4>
+                            <div class="pipeline-list space-y-2" data-stage="qualificado"></div>
+                        </div>
+                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px]">
+                            <h4 class="font-bold text-center mb-2">Proposta</h4>
+                            <div class="pipeline-list space-y-2" data-stage="proposta"></div>
+                        </div>
+                        <div class="bg-stone-100 p-4 rounded-lg min-h-[200px]">
+                             <h4 class="font-bold text-center mb-2">Negociação</h4>
+                             <div class="pipeline-list space-y-2" data-stage="negociacao"></div>
+                        </div>
+                        <div class="bg-green-100 p-4 rounded-lg min-h-[200px]">
+                            <h4 class="font-bold text-green-800 text-center mb-2">Fechado</h4>
+                            <div class="pipeline-list space-y-2" data-stage="fechado"></div>
+                        </div>
+                        <div class="bg-red-100 p-4 rounded-lg min-h-[200px]">
+                            <h4 class="font-bold text-red-800 text-center mb-2">Perdido</h4>
+                            <div class="pipeline-list space-y-2" data-stage="perdido"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex gap-4">
+                         <input type="text" id="new-deal-input" placeholder="Nome do novo cliente/lead..." class="flex-grow p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-800 focus:outline-none">
+                        <button id="add-deal-btn" class="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Adicionar ao Pipeline</button>
+                    </div>
+                </div>
+
+                <div id="calculadora-tool" class="operational-content hidden">
+                    <h3 class="text-xl font-bold text-amber-900 mb-4">Calculadora Rápida de Vendas</h3>
+                    <div id="sales-calculator" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        <div class="space-y-4">
+                             <div>
+                                <label for="calc-preco" class="font-semibold">Preço Original (R$)</label>
+                                <input type="number" id="calc-preco" placeholder="100,00" class="w-full mt-1 p-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label for="calc-desconto" class="font-semibold">Desconto (%)</label>
+                                <input type="number" id="calc-desconto" placeholder="10" class="w-full mt-1 p-2 border rounded-lg">
+                            </div>
+                        </div>
+                        <div class="p-4 bg-stone-100 rounded-lg flex flex-col justify-center">
+                            <div class="text-center">
+                                <p class="text-stone-600">Preço Final:</p>
+                                <p id="calc-final" class="text-3xl font-bold text-amber-900">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <section id="funcoes" class="mb-20 scroll-mt-20">
             <div class="text-center mb-12">
@@ -151,7 +272,7 @@
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
                     <h3 class="text-2xl font-bold text-amber-900">SDR (Sales Development Rep)</h3>
                     <p class="mt-2 text-stone-600 font-medium">O pré-vendedor focado em prospecção e qualificação de leads.</p>
-                    <div id="sdr-tasks" class="mt-4 space-y-2">
+                    <div id="sdr-tasks-accordion" class="mt-4 space-y-2">
                         <div class="accordion-item">
                             <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
                                 Principais Responsabilidades
@@ -190,7 +311,7 @@
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
                     <h3 class="text-2xl font-bold text-amber-900">Vendedor (Fechador)</h3>
                     <p class="mt-2 text-stone-600 font-medium">Pega os clientes qualificados pelo SDR e fecha a venda.</p>
-                     <div id="vendedor-tasks" class="mt-4 space-y-2">
+                     <div id="vendedor-tasks-accordion" class="mt-4 space-y-2">
                         <div class="accordion-item">
                             <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
                                 Principais Responsabilidades
@@ -272,7 +393,6 @@
 
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
                     <h3 class="text-xl font-bold text-amber-900 mb-4">3. Dominando Objeções</h3>
-                    <p class="text-stone-600 mb-4">Objeções não são um "não", são um pedido por mais informações. Use este guia para transformar dúvidas em oportunidades.</p>
                     <div id="objections-accordion" class="space-y-2">
                         <div class="accordion-item">
                              <button class="accordion-header w-full text-left font-semibold p-3 bg-stone-100 rounded-lg flex justify-between items-center hover:bg-stone-200 transition-colors">
@@ -309,79 +429,6 @@
             </div>
         </section>
         
-        <section id="cultura" class="mb-20 scroll-mt-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold tracking-tight">Processos e Cultura de Resultados</h2>
-                <p class="mt-2 max-w-2xl mx-auto text-stone-600">Nossos rituais, processos e princípios que garantem o alinhamento e a alta performance da equipe.</p>
-            </div>
-            
-            <div class="space-y-8">
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                     <h3 class="text-xl font-bold text-amber-900 mb-4">O Handoff Perfeito: SDR para Vendedor</h3>
-                     <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
-                        <div class="flex-1 p-4 bg-stone-50 rounded-lg">
-                           <div class="text-3xl mb-2">1</div> <p class="font-semibold">SDR Qualifica</p><p class="text-sm text-stone-500">Usa o BANT e preenche as informações do lead no CRM.</p>
-                        </div>
-                        <div class="text-amber-900 font-bold text-2xl mx-4">→</div>
-                        <div class="flex-1 p-4 bg-stone-50 rounded-lg">
-                           <div class="text-3xl mb-2">2</div> <p class="font-semibold">Comunicação Rápida</p><p class="text-sm text-stone-500">Lead é passado via planilha compartilhada ou WhatsApp.</p>
-                        </div>
-                        <div class="text-amber-900 font-bold text-2xl mx-4 hidden md:block">→</div>
-                        <div class="flex md:hidden text-amber-900 font-bold text-2xl my-2">↓</div>
-                         <div class="flex-1 p-4 bg-stone-50 rounded-lg">
-                           <div class="text-3xl mb-2">3</div> <p class="font-semibold">Alinhamento (15 min)</p><p class="text-sm text-stone-500">Reunião rápida para discutir os detalhes do lead.</p>
-                        </div>
-                        <div class="text-amber-900 font-bold text-2xl mx-4">→</div>
-                         <div class="flex-1 p-4 bg-stone-50 rounded-lg">
-                           <div class="text-3xl mb-2">4</div> <p class="font-semibold">Introdução Formal</p><p class="text-sm text-stone-500">SDR apresenta o Vendedor ao cliente, garantindo uma transição suave.</p>
-                        </div>
-                     </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                        <h4 class="font-bold text-lg">Reuniões Diárias (15 min)</h4>
-                        <ul class="mt-3 list-disc list-inside text-stone-600 space-y-1">
-                           <li>O que cada um vai fazer hoje?</li>
-                           <li>Tem algum problema?</li>
-                           <li>Compartilhar vitórias.</li>
-                           <li>Alinhar prioridades.</li>
-                        </ul>
-                    </div>
-                     <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                        <h4 class="font-bold text-lg">Reuniões Semanais (1 hora)</h4>
-                        <ul class="mt-3 list-disc list-inside text-stone-600 space-y-1">
-                           <li>Análise de metas.</li>
-                           <li>O que funcionou bem?</li>
-                           <li>O que precisa melhorar?</li>
-                           <li>Treinar algo novo.</li>
-                        </ul>
-                    </div>
-                     <div class="bg-white p-6 rounded-2xl shadow-md border border-stone-200">
-                        <h4 class="font-bold text-lg">Reuniões Mensais (2 horas)</h4>
-                        <ul class="mt-3 list-disc list-inside text-stone-600 space-y-1">
-                           <li>Análise completa dos números.</li>
-                           <li>Feedback do mercado.</li>
-                           <li>Ajustar estratégias.</li>
-                           <li>Definir metas do próximo mês.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                 <div class="text-center p-8 bg-amber-800 text-white rounded-2xl">
-                    <h3 class="text-2xl font-bold">Nossos Princípios Essenciais</h3>
-                    <p class="mt-4 max-w-3xl mx-auto opacity-90">"Venda é número: quanto mais organizado, mais vende!"</p>
-                    <div class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-sm font-semibold">
-                       <div class="bg-white/20 p-3 rounded-lg">Clareza de Papéis</div>
-                       <div class="bg-white/20 p-3 rounded-lg">Seguir Processos</div>
-                       <div class="bg-white/20 p-3 rounded-lg">Usar as Ferramentas</div>
-                       <div class="bg-white/20 p-3 rounded-lg">Feedback e Ajuste</div>
-                       <div class="bg-white/20 p-3 rounded-lg col-span-2 sm:col-span-1 md:col-span-1">Foco nos Números</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section id="recursos" class="mb-20 scroll-mt-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold tracking-tight">Biblioteca de Recursos</h2>
@@ -452,9 +499,9 @@
                     });
                 }
             }
-
-            setupAccordions('sdr-tasks');
-            setupAccordions('vendedor-tasks');
+            
+            setupAccordions('sdr-tasks-accordion');
+            setupAccordions('vendedor-tasks-accordion');
             setupAccordions('objections-accordion');
             
             function setupTabs(containerSelector, buttonSelector, contentSelector) {
@@ -483,6 +530,8 @@
             }
 
             setupTabs('#registro-diario', '.daily-log-tab', '.daily-log-content');
+            setupTabs('#painel-operacional', '.operational-tab', '.operational-content');
+
 
             const funnelData = {
                 labels: ['Contatos Iniciados', 'Leads com Interesse', 'Leads Qualificados', 'Reuniões Agendadas', 'Propostas Enviadas', 'Fechamentos'],
@@ -567,13 +616,13 @@
             let sdrLog = JSON.parse(localStorage.getItem('sdrDailyLog')) || [];
             let vendedorLog = JSON.parse(localStorage.getItem('vendedorDailyLog')) || [];
             
-            const sdrTableBody = document.getElementById('sdr-log-table-body');
-            const vendedorTableBody = document.getElementById('vendedor-log-table-body');
+            const sdrLogTableBody = document.getElementById('sdr-log-table-body');
+            const vendedorLogTableBody = document.getElementById('vendedor-log-table-body');
 
             const renderSdrLog = () => {
-                sdrTableBody.innerHTML = '';
+                sdrLogTableBody.innerHTML = '';
                 sdrLog.forEach((entry, index) => {
-                    const row = sdrTableBody.insertRow();
+                    const row = sdrLogTableBody.insertRow();
                     row.className = 'border-b';
                     row.innerHTML = `
                         <td class="py-2 px-4">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
@@ -581,19 +630,19 @@
                         <td class="py-2 px-4">${entry.nutricoes}</td>
                         <td class="py-2 px-4">${entry.resumo}</td>
                         <td class="py-2 px-4 admin-only">
-                            <button data-index="${index}" class="delete-sdr-btn text-red-500 hover:text-red-700">Excluir</button>
+                            <button data-index="${index}" class="delete-sdr-log-btn text-red-500 hover:text-red-700">Excluir</button>
                         </td>
                     `;
                 });
                 if (isAdmin) {
-                    document.querySelectorAll('.delete-sdr-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                    document.querySelectorAll('.delete-sdr-log-btn').forEach(btn => btn.parentElement.style.display = 'revert');
                 }
             };
 
             const renderVendedorLog = () => {
-                vendedorTableBody.innerHTML = '';
+                vendedorLogTableBody.innerHTML = '';
                 vendedorLog.forEach((entry, index) => {
-                    const row = vendedorTableBody.insertRow();
+                    const row = vendedorLogTableBody.insertRow();
                     row.className = 'border-b';
                     row.innerHTML = `
                         <td class="py-2 px-4">${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
@@ -602,12 +651,12 @@
                         <td class="py-2 px-4">${entry.reativacoes}</td>
                         <td class="py-2 px-4">${entry.notas}</td>
                         <td class="py-2 px-4 admin-only">
-                             <button data-index="${index}" class="delete-vendedor-btn text-red-500 hover:text-red-700">Excluir</button>
+                             <button data-index="${index}" class="delete-vendedor-log-btn text-red-500 hover:text-red-700">Excluir</button>
                         </td>
                     `;
                 });
-                if (isAdmin) {
-                    document.querySelectorAll('.delete-vendedor-btn').forEach(btn => btn.parentElement.style.display = 'revert');
+                 if (isAdmin) {
+                    document.querySelectorAll('.delete-vendedor-log-btn').forEach(btn => btn.parentElement.style.display = 'revert');
                 }
             };
 
@@ -649,8 +698,8 @@
                 document.getElementById('vendedor-notas').value = '';
             });
 
-            sdrTableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-sdr-btn')) {
+            sdrLogTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-sdr-log-btn')) {
                     const index = e.target.dataset.index;
                     if(confirm('Tem certeza que deseja excluir este registro?')) {
                         sdrLog.splice(index, 1);
@@ -660,8 +709,8 @@
                 }
             });
 
-             vendedorTableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-vendedor-btn')) {
+            vendedorLogTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-vendedor-log-btn')) {
                     const index = e.target.dataset.index;
                      if(confirm('Tem certeza que deseja excluir este registro?')) {
                         vendedorLog.splice(index, 1);
@@ -687,8 +736,204 @@
                 }
             });
 
+            // Operational Panel Logic
+            // SDR Task List
+            const taskInput = document.getElementById('new-task-input');
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const taskListEl = document.getElementById('task-list');
+            let tasks = JSON.parse(localStorage.getItem('sdrDailyTasks')) || [];
+
+            const renderTasks = () => {
+                taskListEl.innerHTML = '';
+                tasks.forEach((task, index) => {
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `task-item flex items-center justify-between p-2 rounded-lg bg-stone-100 ${task.completed ? 'completed' : ''}`;
+                    taskEl.innerHTML = `
+                        <span>${task.text}</span>
+                        <div class="flex items-center gap-2">
+                            <button data-index="${index}" class="toggle-task-btn text-green-600">✓</button>
+                            <button data-index="${index}" class="delete-task-btn text-red-600">✗</button>
+                        </div>
+                    `;
+                    taskListEl.appendChild(taskEl);
+                });
+            };
+
+            addTaskBtn.addEventListener('click', () => {
+                const taskText = taskInput.value.trim();
+                if (taskText) {
+                    tasks.unshift({ text: taskText, completed: false });
+                    taskInput.value = '';
+                    localStorage.setItem('sdrDailyTasks', JSON.stringify(tasks));
+                    renderTasks();
+                }
+            });
+            
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTaskBtn.click();
+            });
+
+            taskListEl.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                if (e.target.classList.contains('toggle-task-btn')) {
+                    tasks[index].completed = !tasks[index].completed;
+                }
+                if (e.target.classList.contains('delete-task-btn')) {
+                    tasks.splice(index, 1);
+                }
+                localStorage.setItem('sdrDailyTasks', JSON.stringify(tasks));
+                renderTasks();
+            });
+
+            // Vendedor Pipeline
+            const dealInput = document.getElementById('new-deal-input');
+            const addDealBtn = document.getElementById('add-deal-btn');
+            let deals = JSON.parse(localStorage.getItem('salesPipelineDeals')) || [];
+
+            const renderDeals = () => {
+                document.querySelectorAll('.pipeline-list').forEach(list => list.innerHTML = '');
+                deals.forEach((deal, index) => {
+                    const dealEl = document.createElement('div');
+                    dealEl.className = 'p-2 bg-white rounded shadow text-sm cursor-grab';
+                    dealEl.setAttribute('draggable', true);
+                    dealEl.dataset.index = index;
+
+                    dealEl.innerHTML = `<p class="font-semibold">${deal.text}</p>`;
+                    document.querySelector(`.pipeline-list[data-stage="${deal.stage}"]`).appendChild(dealEl);
+                });
+                 addDragAndDropHandlers();
+            };
+
+            const addDragAndDropHandlers = () => {
+                const dealElements = document.querySelectorAll('.pipeline-list > div');
+                const pipelineLists = document.querySelectorAll('.pipeline-list');
+
+                dealElements.forEach(dealEl => {
+                    dealEl.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', e.target.dataset.index);
+                        setTimeout(() => {
+                           e.target.classList.add('opacity-50');
+                        }, 0);
+                    });
+
+                    dealEl.addEventListener('dragend', (e) => {
+                        e.target.classList.remove('opacity-50');
+                    });
+                });
+
+                pipelineLists.forEach(list => {
+                    list.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                    });
+
+                    list.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const dealIndex = e.dataTransfer.getData('text/plain');
+                        const newStage = e.target.closest('.pipeline-list').dataset.stage;
+                        
+                        if (dealIndex && newStage) {
+                           deals[dealIndex].stage = newStage;
+                           localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
+                           renderDeals();
+                        }
+                    });
+                });
+            };
+            
+            addDealBtn.addEventListener('click', () => {
+                const dealText = dealInput.value.trim();
+                if(dealText) {
+                    deals.unshift({ text: dealText, stage: 'qualificado' });
+                    dealInput.value = '';
+                    localStorage.setItem('salesPipelineDeals', JSON.stringify(deals));
+                    renderDeals();
+                }
+            });
+
+            dealInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addDealBtn.click();
+            });
+            
+            // Sales Calculator
+            const calcPreco = document.getElementById('calc-preco');
+            const calcDesconto = document.getElementById('calc-desconto');
+            const calcFinal = document.getElementById('calc-final');
+
+            function updateCalculator() {
+                const preco = parseFloat(calcPreco.value) || 0;
+                const desconto = parseFloat(calcDesconto.value) || 0;
+                const precoFinal = preco - (preco * (desconto / 100));
+                calcFinal.textContent = `R$ ${precoFinal.toFixed(2).replace('.',',')}`;
+            }
+
+            calcPreco.addEventListener('input', updateCalculator);
+            calcDesconto.addEventListener('input', updateCalculator);
+            
+             // Campaign & Goals Logic
+            const campaignDisplay = document.getElementById('campaign-display');
+            const goalsDisplay = document.getElementById('goals-display');
+            let campaignData = JSON.parse(localStorage.getItem('salesCampaign')) || { title: 'Nenhuma campanha ativa no momento.', duration: '', strategy: 'O gestor definirá a próxima campanha em breve.' };
+            let goalsData = JSON.parse(localStorage.getItem('teamGoals')) || { vendas: 0, leads: 0, reativacoes: 0, custom: 'N/A' };
+
+            const renderCampaign = () => {
+                campaignDisplay.innerHTML = `
+                    <h4 class="font-bold text-lg">${campaignData.title}</h4>
+                    <p class="text-sm font-medium text-stone-500 mb-2">${campaignData.duration}</p>
+                    <p class="text-stone-700 whitespace-pre-wrap">${campaignData.strategy}</p>
+                `;
+            };
+
+            const renderGoals = () => {
+                goalsDisplay.innerHTML = `
+                    <div class="bg-stone-100 p-4 rounded-lg">
+                        <p class="text-sm font-semibold text-stone-600">Vendas (R$)</p>
+                        <p class="text-2xl font-bold">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(goalsData.vendas)}</p>
+                    </div>
+                     <div class="bg-stone-100 p-4 rounded-lg">
+                        <p class="text-sm font-semibold text-stone-600">Leads Qualificados</p>
+                        <p class="text-2xl font-bold">${goalsData.leads}</p>
+                    </div>
+                     <div class="bg-stone-100 p-4 rounded-lg">
+                        <p class="text-sm font-semibold text-stone-600">Reativações</p>
+                        <p class="text-2xl font-bold">${goalsData.reativacoes}</p>
+                    </div>
+                     <div class="bg-stone-100 p-4 rounded-lg">
+                        <p class="text-sm font-semibold text-stone-600">Foco Adicional</p>
+                        <p class="text-xl font-bold">${goalsData.custom}</p>
+                    </div>
+                `;
+            };
+
+            document.getElementById('save-campaign-btn').addEventListener('click', () => {
+                campaignData = {
+                    title: document.getElementById('campaign-title').value || 'Nenhuma campanha ativa',
+                    duration: document.getElementById('campaign-duration').value || '',
+                    strategy: document.getElementById('campaign-strategy').value || 'Foco nas atividades diárias.'
+                };
+                localStorage.setItem('salesCampaign', JSON.stringify(campaignData));
+                renderCampaign();
+                alert('Campanha salva com sucesso!');
+            });
+
+            document.getElementById('save-goals-btn').addEventListener('click', () => {
+                goalsData = {
+                    vendas: parseFloat(document.getElementById('goal-vendas').value) || 0,
+                    leads: parseInt(document.getElementById('goal-leads').value) || 0,
+                    reativacoes: parseInt(document.getElementById('goal-reativacoes').value) || 0,
+                    custom: document.getElementById('goal-custom').value || 'N/A'
+                };
+                localStorage.setItem('teamGoals', JSON.stringify(goalsData));
+                renderGoals();
+                alert('Metas salvas com sucesso!');
+            });
+            
+            // Initial render
             renderSdrLog();
             renderVendedorLog();
+            renderTasks();
+            renderDeals();
+            renderCampaign();
+            renderGoals();
         });
     </script>
 </body>
