@@ -233,6 +233,55 @@
                 <a href="https://www.youtube.com/watch?v=I0OU1AAul7M" target="_blank" class="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition"><p class="font-semibold text-primary">Aula 4 - Perguntas de Implicação</p><p class="text-sm text-stone-500">Guilherme Miranda</p></a>
             </div>
         </section>
+<!-- === NOVA SEÇÃO: PRODUTIVIDADE & GAMIFICAÇÃO === -->
+<section id="produtividade" class="space-y-6 scroll-mt-20" data-role="all">
+  <div class="text-center mb-8">
+    <h3 class="text-3xl font-semibold text-primary">
+      Produtividade & Automação<br>
+      Gamificação & Motivação
+    </h3>
+    <p class="text-stone-600">
+      Acesso rápido a templates, recursos e ranking, separados por papel.
+    </p>
+  </div>
+
+  <!-- Abas de papel -->
+  <div class="flex justify-center space-x-4 mb-6">
+    <button class="prod-role-tab px-4 py-2 rounded-md border-b-2 border-primary font-semibold active" data-role="sdr">
+      SDR
+    </button>
+    <button class="prod-role-tab px-4 py-2 rounded-md border-b-2 border-transparent hover:border-primary font-semibold" data-role="vendedor">
+      Vendedor
+    </button>
+  </div>
+
+  <!-- Conteúdo SDR -->
+  <div id="bloc-sdr" class="prod-role-content">
+    <div class="flex justify-center space-x-4 mb-4">
+      <button class="sdr-sub-tab px-3 py-1 rounded-md bg-primary/10 active" data-target="sdr-templates">Templates</button>
+      <button class="sdr-sub-tab px-3 py-1 rounded-md bg-primary/10" data-target="sdr-recursos">Recursos</button>
+      <button class="sdr-sub-tab px-3 py-1 rounded-md bg-primary/10" data-target="sdr-gamificacao">Gamificação</button>
+    </div>
+    <div id="sdr-templates"   class="space-y-4"></div>
+    <div id="sdr-recursos"    class="space-y-4 hidden"></div>
+    <div id="sdr-gamificacao" class="space-y-4 hidden"></div>
+  </div>
+
+  <!-- Conteúdo Vendedor -->
+  <div id="bloc-vendedor" class="prod-role-content hidden">
+    <div class="flex justify-center space-x-4 mb-4">
+      <button class="vend-sub-tab px-3 py-1 rounded-md bg-primary/10 active" data-target="vend-templates">Templates</button>
+      <button class="vend-sub-tab px-3 py-1 rounded-md bg-primary/10" data-target="vend-recursos">Recursos</button>
+      <button class="vend-sub-tab px-3 py-1 rounded-md bg-primary/10" data-target="vend-gamificacao">Gamificação</button>
+    </div>
+    <div id="vend-templates"   class="space-y-4"></div>
+    <div id="vend-recursos"    class="space-y-4 hidden"></div>
+    <div id="vend-gamificacao" class="space-y-4 hidden"></div>
+  </div>
+</section>
+<!-- === FIM PRODUTIVIDADE/GAMIFICAÇÃO === -->
+
+        
     </main>
 
     <footer class="bg-stone-800 text-white py-4 text-center">
@@ -318,6 +367,136 @@
                     adminError.classList.remove('hidden');
                     setTimeout(() => adminError.classList.add('hidden'), 2000);
                 }
+                // ───────────────────────────────────────────
+// *** SEED e RENDER das novas coleções ***
+
+// 1) Seed default (executa só uma vez)
+if (!localStorage.getItem('salesTemplates')) {
+  localStorage.setItem('salesTemplates', JSON.stringify([
+    { role:'sdr',     stage:'Prospecção',  type:'email',    title:'Email de Prospecção',     content:'Olá {{nome}}, gostaríamos de apresentar...' },
+    { role:'sdr',     stage:'Qualificação', type:'whatsapp', title:'WhatsApp de Qualificação', content:'Oi {{nome}}, tudo bem? Segue catálogo...' },
+    { role:'vendedor',stage:'Proposta',     type:'proposta', title:'Proposta Padrão',         content:'Prezado {{nome}}, segue nossa proposta...' }
+  ]));
+  localStorage.setItem('resourcesSdr', JSON.stringify([
+    { title:'Objeções Comuns' },
+    { title:'Scripts de Ligação' },
+    { title:'Ficha de Qualificação de Lead' }
+  ]));
+  localStorage.setItem('resourcesVend', JSON.stringify([
+    { title:'SPIN Selling' },
+    { title:'Negociação Avançada' },
+    { title:'Análise de Perfil de Comprador' }
+  ]));
+  localStorage.setItem('salesBadges', JSON.stringify([
+    { name:'Top Prospector',    icon:'🔍', role:'sdr' },
+    { name:'Fechador MVP',      icon:'🏆', role:'vendedor' },
+    { name:'Guru de Templates', icon:'📚', role:'sdr' }
+  ]));
+  localStorage.setItem('salesUsers', JSON.stringify([
+    { name:'Alice SDR',      points:200, role:'sdr' },
+    { name:'Bruno Vendedor', points:150, role:'vendedor' },
+    { name:'Carla SDR',      points:120, role:'sdr' }
+  ]));
+}
+
+// 2) Carrega tudo
+const templates     = JSON.parse(localStorage.getItem('salesTemplates'));
+const resourcesSdr  = JSON.parse(localStorage.getItem('resourcesSdr'));
+const resourcesVend = JSON.parse(localStorage.getItem('resourcesVend'));
+const badges        = JSON.parse(localStorage.getItem('salesBadges'));
+const users         = JSON.parse(localStorage.getItem('salesUsers'));
+
+// 3) Render functions
+function renderTemplates(role) {
+  const cont = document.getElementById(`${role}-templates`);
+  cont.innerHTML = templates
+    .filter(t => t.role === role)
+    .map(t => `
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="font-bold text-primary">${t.title}</h4>
+        <p class="text-stone-700">${t.content}</p>
+        <p class="mt-1 text-xs text-stone-500">${t.type} • ${t.stage}</p>
+      </div>
+    `).join('');
+}
+function renderResources(role) {
+  const arr = role==='sdr'? resourcesSdr : resourcesVend;
+  const cont = document.getElementById(`${role}-recursos`);
+  cont.innerHTML = arr.map(r=>`
+    <div class="bg-white p-3 rounded-lg shadow flex items-center gap-3">
+      <svg class="w-6 h-6 text-accent"><use href="#icon-doc"/></svg>
+      <span class="font-medium">${r.title}</span>
+    </div>
+  `).join('');
+}
+function renderGamificacao(role) {
+  const cont = document.getElementById(`${role}-gamificacao`);
+  // badges
+  const badHTML = badges.filter(b=>b.role===role)
+    .map(b=>`
+      <div class="bg-accent/20 p-2 rounded-md flex items-center gap-2">
+        <span class="text-xl">${b.icon}</span><span>${b.name}</span>
+      </div>
+    `).join('');
+  // ranking
+  const rank = users
+    .filter(u=>u.role===role)
+    .sort((a,b)=>b.points-a.points)
+    .map(u=>`<li>${u.name} — ${u.points} pts</li>`).join('');
+  cont.innerHTML = `
+    <div class="flex flex-wrap gap-4">${badHTML}</div>
+    <div class="mt-6 bg-white p-4 rounded-lg shadow">
+      <h5 class="font-semibold text-primary mb-2">Ranking ${role.toUpperCase()}</h5>
+      <ol class="list-decimal list-inside space-y-1">${rank}</ol>
+    </div>
+  `;
+}
+
+// 4) Inicia tudo
+['sdr','vendedor'].forEach(r=>{
+  renderTemplates(r);
+  renderResources(r);
+  renderGamificacao(r);
+});
+
+// 5) Abas papel e sub-abas
+document.querySelectorAll('.prod-role-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.prod-role-tab').forEach(b=>b.classList.remove('active','border-primary'));
+    btn.classList.add('active','border-primary');
+    document.querySelectorAll('.prod-role-content').forEach(c=>c.classList.add('hidden'));
+    document.getElementById('bloc-'+btn.dataset.role).classList.remove('hidden');
+  });
+});
+document.querySelectorAll('.sdr-sub-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.sdr-sub-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#bloc-sdr > div[id^="sdr-"]').forEach(c=>c.classList.add('hidden'));
+    document.getElementById(btn.dataset.target).classList.remove('hidden');
+  });
+});
+document.querySelectorAll('.vend-sub-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.vend-sub-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#bloc-vendedor > div[id^="vend-"]').forEach(c=>c.classList.add('hidden'));
+    document.getElementById(btn.dataset.target).classList.remove('hidden');
+  });
+});
+
+// 6) Ícone genérico (só uma vez)
+if (!document.getElementById('icon-doc')) {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS,'svg');
+  svg.style.display='none';
+  svg.innerHTML=`
+    <symbol id="icon-doc" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1-2-2z"/>
+    </symbol>`;
+  document.body.appendChild(svg);
+}
+
             });
 
             adminPasswordInput.addEventListener('keypress', (e) => {
